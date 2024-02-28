@@ -24,6 +24,7 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 
 	// 传入request和responseWriter
 	server := officialAccount.GetServer(req, rw)
+	server.SkipValidate(true)
 	//设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 		//回复消息：演示回复用户发送的消息
