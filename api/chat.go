@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"net/http"
@@ -35,10 +34,5 @@ func Chat(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(w, "gptclient err:%E", err)
 		return
 	}
-	jsonData, err := json.Marshal(resp)
-	if err != nil {
-		fmt.Fprintf(w, "json err:%E", err)
-		return
-	}
-	w.Write(jsonData)
+	fmt.Fprintf(w, resp.Choices[0].Message.Content)
 }
