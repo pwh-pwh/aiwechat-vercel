@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 
-func check(w http.ResponseWriter, req *http.Request) {
+func Check(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "check ok")
 }
