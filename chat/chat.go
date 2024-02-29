@@ -64,7 +64,7 @@ func (s *SimpleGptChat) Chat(userID string, msg string) string {
 	case res := <-resChan:
 		return res
 	case <-time.After(5 * time.Second):
-		config.Cache.Store(userID, msg)
+		config.Cache.Store(userID, <-resChan)
 		return ""
 	}
 }
