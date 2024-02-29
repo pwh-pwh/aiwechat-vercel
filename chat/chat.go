@@ -27,15 +27,14 @@ func (e *Echo) Chat(userID string, msg string) string {
 }
 
 type SimpleGptChat struct {
-	token    string
-	url      string
-	cacheMsg map[string]string
+	token string
+	url   string
 }
 
 func (s *SimpleGptChat) Chat(userID string, msg string) string {
-	if s.cacheMsg[userID] != "" {
-		r := s.cacheMsg[userID]
-		delete(s.cacheMsg, userID)
+	if config.Cache[userID] != "" {
+		r := config.Cache[userID]
+		delete(config.Cache, userID)
 		return r
 	}
 	cfg := openai.DefaultConfig(s.token)
@@ -63,10 +62,8 @@ func (s *SimpleGptChat) Chat(userID string, msg string) string {
 	select {
 	case res := <-resChan:
 		return res
-	case <-time.After(4 * time.Second):
-		go func() {
-			s.cacheMsg[userID] = <-resChan
-		}()
+	case <-time.After(5 * time.Second):
+		config.Cache[userID] = <-resChan
 		return "响应内容过长，重新发送任意回复获取答复"
 	}
 }
@@ -86,9 +83,8 @@ func GetChatBot() BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:    os.Getenv("GPT_TOKEN"),
-			url:      url,
-			cacheMsg: make(map[string]string),
+			token: os.Getenv("GPT_TOKEN"),
+			url:   url,
 		}
 	case config.ECHO:
 		return &Echo{}

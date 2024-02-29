@@ -12,6 +12,8 @@ const (
 
 var UseType = ""
 
+var Cache = make(map[string]string)
+
 func CheckConfig() error {
 	gptToken := os.Getenv("GPT_TOKEN")
 	token := os.Getenv("TOKEN")
