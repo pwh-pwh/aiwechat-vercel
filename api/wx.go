@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/pwh-pwh/aiwechat-vercel/chat"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	offConfig "github.com/silenceper/wechat/v2/officialaccount/config"
@@ -25,10 +26,11 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 	// 传入request和responseWriter
 	server := officialAccount.GetServer(req, rw)
 	server.SkipValidate(true)
+	bot := chat.GetChatBot()
 	//设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 		//回复消息：演示回复用户发送的消息
-		text := message.NewText(string(msg.FromUserName) + "" + msg.Content)
+		text := message.NewText(bot.Chat(string(msg.FromUserName), msg.Content))
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: text}
 	})
 
