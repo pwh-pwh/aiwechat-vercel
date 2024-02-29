@@ -32,9 +32,10 @@ type SimpleGptChat struct {
 }
 
 func (s *SimpleGptChat) Chat(userID string, msg string) string {
-	if config.Cache[userID] != "" {
-		r := config.Cache[userID]
-		delete(config.Cache, userID)
+	if _, ok := config.Cache.Load(userID); ok {
+		rAny, _ := config.Cache.Load(userID)
+		r := rAny.(string)
+		config.Cache.Delete(userID)
 		return r
 	}
 	cfg := openai.DefaultConfig(s.token)
@@ -63,8 +64,8 @@ func (s *SimpleGptChat) Chat(userID string, msg string) string {
 	case res := <-resChan:
 		return res
 	case <-time.After(5 * time.Second):
-		config.Cache[userID] = <-resChan
-		return "响应内容过长，重新发送任意回复获取答复"
+		config.Cache.Store(userID, msg)
+		return ""
 	}
 }
 
