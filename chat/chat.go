@@ -2,10 +2,11 @@ package chat
 
 import (
 	"context"
-	"github.com/pwh-pwh/aiwechat-vercel/config"
-	"github.com/sashabaranov/go-openai"
 	"os"
 	"time"
+
+	"github.com/pwh-pwh/aiwechat-vercel/config"
+	"github.com/sashabaranov/go-openai"
 )
 
 type BaseChat interface {
@@ -70,15 +71,15 @@ func (s *SimpleGptChat) Chat(userID string, msg string) string {
 }
 
 func GetChatBot() BaseChat {
-	err := config.CheckConfig()
-	if err != nil {
-		return &ErrorChat{
-			errMsg: err.Error(),
+	botType := config.GetBotType()
+	switch botType {
+	case config.Bot_Type_Gpt:
+		err := config.CheckGptConfig()
+		if err != nil {
+			return &ErrorChat{
+				errMsg: err.Error(),
+			}
 		}
-	}
-	useType := config.UseType
-	switch useType {
-	case config.GPT:
 		url := os.Getenv("GPT_URL")
 		if url == "" {
 			url = "https://api.openai.com/v1/"
@@ -87,8 +88,10 @@ func GetChatBot() BaseChat {
 			token: os.Getenv("GPT_TOKEN"),
 			url:   url,
 		}
-	case config.ECHO:
+	case config.Bot_Type_Spark:
+		return &SparkChat{}
+	default:
 		return &Echo{}
 	}
-	return &Echo{}
+
 }

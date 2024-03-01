@@ -2,12 +2,13 @@ package api
 
 import (
 	"fmt"
-	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"net/http"
+
+	"github.com/pwh-pwh/aiwechat-vercel/config"
 )
 
 func Check(w http.ResponseWriter, req *http.Request) {
-	err := config.CheckConfig()
+	err := config.CheckBotConfig()
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
 		return
