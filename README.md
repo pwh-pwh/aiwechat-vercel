@@ -9,6 +9,8 @@
 
 fork本项目，到vercel点击构建,环境变量填写参数
 
+更多配置[config](conf/.env.sample)
+
 ```dotenv
 # 更多配置见conf/.env.sample示例文件
 GPT_TOKEN=sk-*** 你的gpt token
