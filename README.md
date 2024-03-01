@@ -42,5 +42,9 @@ TYPE=** 机器人类型 目前支持(gpt,echo)例如TYPE=gpt
 项目起因:偶然看到网上有人使用vercel实现了，自己看了下文档，居然支持go了，就实现了，项目仅供学习参考
 也欢迎各位大佬pr
 
+### 问题汇总
+1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
+2. 我的域名国内可以访问，但是也不能用? 答: 这个有人反馈过，好像是微信公众平台对一些小众域名不支持
+
 ### 项目灵感来源
 [spark-wechat-vercel](https://github.com/LuhangRui/spark-wechat-vercel)
