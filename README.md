@@ -14,7 +14,7 @@ fork本项目，到vercel点击构建,环境变量填写参数
 GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
 TOKEN=*** 微信公众号开发平台设置的token
-botType=** 机器人类型 目前支持(gpt,echo)例如botType=gpt
+botType=** 机器人类型 目前支持(gpt,echo,星火)例如botType=gpt
 ```
 如何检查是否配置成功
 
@@ -36,7 +36,7 @@ botType=** 机器人类型 目前支持(gpt,echo)例如botType=gpt
 
 ### 后续
 
-- 支持国内大部分可以白嫖的ai 如星火，等
+- 支持国内大部分可以白嫖的ai 如星火(已支持，感谢大佬pr)，等
 - 增加记忆功能
 - 增加指令控制，增加管理员设置
 - 增加预定义prompts
