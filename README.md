@@ -11,7 +11,7 @@ fork本项目，到vercel点击构建,环境变量填写参数
 
 ```dotenv
 GPT_TOKEN=sk-*** 你的gpt token
-GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api)
+GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com 注意只需要填主域名)
 TOKEN=*** 微信公众号开发平台设置的token
 TYPE=** 机器人类型 目前支持(gpt,echo)例如TYPE=gpt
 ```
