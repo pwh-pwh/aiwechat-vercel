@@ -8,10 +8,10 @@ import (
 )
 
 func Check(w http.ResponseWriter, req *http.Request) {
-	err := config.CheckBotConfig()
+	botType, err := config.CheckBotConfig()
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
 		return
 	}
-	fmt.Fprintf(w, "配置成功")
+	fmt.Fprintf(w, "BOT [%v] config check passed", botType)
 }

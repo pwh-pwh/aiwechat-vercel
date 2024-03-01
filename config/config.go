@@ -13,16 +13,15 @@ const (
 
 var Cache sync.Map
 
-func CheckBotConfig() error {
-	botType := GetBotType()
+func CheckBotConfig() (botType string, err error) {
+	botType = GetBotType()
 	switch botType {
 	case Bot_Type_Gpt:
-		return CheckGptConfig()
+		err = CheckGptConfig()
 	case Bot_Type_Spark:
-		_, err := GetSparkConfig()
-		return err
+		_, err = GetSparkConfig()
 	}
-	return nil
+	return
 }
 
 func CheckGptConfig() error {

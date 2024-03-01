@@ -71,15 +71,15 @@ func (s *SimpleGptChat) Chat(userID string, msg string) string {
 }
 
 func GetChatBot() BaseChat {
-	botType := config.GetBotType()
+	botType, err := config.CheckBotConfig()
+	if err != nil {
+		return &ErrorChat{
+			errMsg: err.Error(),
+		}
+	}
+
 	switch botType {
 	case config.Bot_Type_Gpt:
-		err := config.CheckGptConfig()
-		if err != nil {
-			return &ErrorChat{
-				errMsg: err.Error(),
-			}
-		}
 		url := os.Getenv("GPT_URL")
 		if url == "" {
 			url = "https://api.openai.com/v1/"
