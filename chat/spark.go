@@ -17,6 +17,7 @@ import (
 )
 
 type SparkChat struct {
+	BaseChat
 }
 
 type SparkResponse struct {

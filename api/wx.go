@@ -31,7 +31,14 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 	bot := chat.GetChatBot()
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 		//回复消息：演示回复用户发送的消息
-		text := message.NewText(bot.Chat(string(msg.FromUserName), msg.Content))
+		msgType := msg.MsgType
+		replyMsg := ""
+		if msgType == message.MsgTypeText {
+			replyMsg = bot.Chat(string(msg.FromUserName), msg.Content)
+		} else {
+			replyMsg = bot.HandleMediaMsg(msg)
+		}
+		text := message.NewText(replyMsg)
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: text}
 	})
 

@@ -8,6 +8,7 @@ import (
 type SimpleGptChat struct {
 	token string
 	url   string
+	SimpleChat
 }
 
 func (s *SimpleGptChat) chat(userID, msg string) string {

@@ -2,12 +2,29 @@ package chat
 
 import (
 	"github.com/pwh-pwh/aiwechat-vercel/config"
+	"github.com/silenceper/wechat/v2/officialaccount/message"
 	"os"
 	"time"
 )
 
 type BaseChat interface {
 	Chat(userID string, msg string) string
+	HandleMediaMsg(msg *message.MixMessage) string
+}
+type SimpleChat struct {
+}
+
+func (s SimpleChat) Chat(userID string, msg string) string {
+	panic("implement me")
+}
+
+func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
+	switch msg.MsgType {
+	case message.MsgTypeImage:
+		return msg.PicURL
+	default:
+		return "未支持的类型"
+	}
 }
 
 // 加入超时控制
@@ -31,16 +48,12 @@ func WithTimeChat(userID, msg string, f func(userID, msg string) string) string 
 	}
 }
 
-type WithTimeoutChat interface {
-	ChatWithTimeOut()
-}
-
-type SimpleWithTimeout struct {
-	BaseChat
-}
-
 type ErrorChat struct {
 	errMsg string
+}
+
+func (e *ErrorChat) HandleMediaMsg(msg *message.MixMessage) string {
+	return e.errMsg
 }
 
 func (e *ErrorChat) Chat(userID string, msg string) string {
@@ -62,11 +75,14 @@ func GetChatBot() BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token: os.Getenv("GPT_TOKEN"),
-			url:   url,
+			token:      os.Getenv("GPT_TOKEN"),
+			url:        url,
+			SimpleChat: SimpleChat{},
 		}
 	case config.Bot_Type_Spark:
-		return &SparkChat{}
+		return &SparkChat{
+			SimpleChat{},
+		}
 	default:
 		return &Echo{}
 	}
