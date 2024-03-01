@@ -44,7 +44,11 @@ func (header *SparkResponseHeader) ToString() string {
 	return string(buf)
 }
 
-func (chat *SparkChat) Chat(userId string, message string) (res string) {
+func (chat *SparkChat) Chat(userId, message string) (res string) {
+	return WithTimeChat(userId, message, chat.chat)
+}
+
+func (chat *SparkChat) chat(userId string, message string) (res string) {
 	cfg, err := config.GetSparkConfig()
 	if err != nil {
 		res = err.Error()
@@ -110,8 +114,6 @@ func (chat *SparkChat) Chat(userId string, message string) (res string) {
 	}
 	//输出返回结果
 	fmt.Println(res)
-
-	time.Sleep(1 * time.Second)
 
 	return
 }
