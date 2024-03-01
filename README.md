@@ -17,7 +17,8 @@ TYPE=** 机器人类型 目前支持(gpt,echo)例如TYPE=gpt
 ```
 如何检查是否配置成功
 部署后访问 你的域名/api/check 页面返回check ok即可
-域名增加`cname`解析到`cname-china.vercel-dns.com`
+到域名提供商，域名增加`cname`解析到`cname-china.vercel-dns.com`
+到vercel的该项目添加自定义域名
 
 微信公众号配置:
 > 微信公众号。后台管理页面上找到`设置与开发`-`基本配置`-`服务器配置`，修改服务器地址url为`https://你的域名/api/wx` 消息加解密选择明文模式(后续添加支持加密)
