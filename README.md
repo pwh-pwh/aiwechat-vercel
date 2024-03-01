@@ -16,8 +16,11 @@ TOKEN=*** 微信公众号开发平台设置的token
 TYPE=** 机器人类型 目前支持(gpt,echo)例如TYPE=gpt
 ```
 如何检查是否配置成功
+
 部署后访问 vercel提供的域名/api/check 页面返回check ok即可
+
 到域名提供商，域名增加`cname`解析到`cname-china.vercel-dns.com`
+
 到vercel的该项目添加自定义域名(使用国内网络在访问你的域名/api/check看看能否访问)
 
 微信公众号配置:
