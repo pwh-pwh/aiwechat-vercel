@@ -69,7 +69,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 	}
 
 	go func() {
-		data := generateRequestBody(cfg.AppId, message)
+		data := generateRequestBody(cfg.AppId, cfg.SparkDomainVersion, message)
 		conn.WriteJSON(data)
 	}()
 
@@ -120,7 +120,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 }
 
 // 生成参数
-func generateRequestBody(appid, question string) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+func generateRequestBody(appid, domain, question string) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
 
 	messages := []Message{
 		{Role: "user", Content: question},
@@ -132,11 +132,11 @@ func generateRequestBody(appid, question string) map[string]interface{} { // 根
 		},
 		"parameter": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"chat": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
-				"domain":      config.Spark_Domain_Version, // 根据实际情况修改返回的数据结构和字段名
-				"temperature": float64(0.8),                // 根据实际情况修改返回的数据结构和字段名
-				"top_k":       int64(6),                    // 根据实际情况修改返回的数据结构和字段名
-				"max_tokens":  int64(2048),                 // 根据实际情况修改返回的数据结构和字段名
-				"auditing":    "default",                   // 根据实际情况修改返回的数据结构和字段名
+				"domain":      domain,       // 根据实际情况修改返回的数据结构和字段名
+				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
+				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
+				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名
+				"auditing":    "default",    // 根据实际情况修改返回的数据结构和字段名
 			},
 		},
 		"payload": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
