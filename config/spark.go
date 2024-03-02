@@ -39,10 +39,8 @@ func GetSparkConfig() (cfg SparkConfig, err error) {
 		sparkUrl = "wss://spark-api.xf-yun.com/v3.5/chat"
 	}
 	version := extractVersion(sparkUrl)
-	sparkDomainVersion := "generalv" + version
-	if version == "" {
-
-	}
+	var sparkDomainVersion = "" 
+	
 	switch version {
 	case "3.5":
 		sparkDomainVersion = "generalv3.5"
