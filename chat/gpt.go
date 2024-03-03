@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"fmt"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
 )
@@ -52,7 +53,8 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 			msgs = append(list, msgs...)
 		}
 	}
-
+	// log msgs
+	fmt.Println(msgs)
 	resp, err := client.CreateChatCompletion(context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    openai.GPT3Dot5Turbo,
