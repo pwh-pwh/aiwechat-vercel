@@ -68,7 +68,12 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		res = readResp(resp) + err.Error()
 		return
 	}
-	var msgs []Message
+	var msgs = []Message{
+		{
+			Role:    "user",
+			Content: message,
+		},
+	}
 	chatDb := db.ChatDbInstance
 	if chatDb != nil {
 		msgList, err := chatDb.GetMsgList(userId)
