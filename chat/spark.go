@@ -139,7 +139,7 @@ func (chat *SparkChat) toSparkMsgList(msgList []db.Msg) []Message {
 	var messages []Message
 	for _, msg := range msgList {
 		messages = append(messages, Message{
-			Role:    "user",
+			Role:    msg.Role,
 			Content: msg.Msg,
 		})
 	}
