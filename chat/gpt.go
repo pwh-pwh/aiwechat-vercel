@@ -61,10 +61,13 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 		return err.Error()
 	}
 	content := resp.Choices[0].Message.Content
-	go func() {
-		msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleSystem, Content: content})
-		chatDb.SetMsgList(userID, s.toChatMsList(msgs))
-	}()
+	if chatDb != nil {
+		go func() {
+			msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
+			chatDb.SetMsgList(userID, s.toChatMsList(msgs))
+		}()
+	}
+
 	return content
 }
 

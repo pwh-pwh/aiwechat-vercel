@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"io"
 	"net/http"
 	"net/url"
@@ -67,9 +68,18 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		res = readResp(resp) + err.Error()
 		return
 	}
+	var msgs []Message
+	chatDb := db.ChatDbInstance
+	if chatDb != nil {
+		msgList, err := chatDb.GetMsgList(userId)
+		if err == nil {
+			list := chat.toSparkMsgList(msgList)
+			msgs = append(list, msgs...)
+		}
+	}
 
 	go func() {
-		data := generateRequestBody(cfg.AppId, cfg.SparkDomainVersion, message)
+		data := generateRequestBody(cfg.AppId, cfg.SparkDomainVersion, msgs)
 		conn.WriteJSON(data)
 	}()
 
@@ -113,19 +123,42 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		}
 
 	}
-	//输出返回结果
-	fmt.Println(res)
-
+	if chatDb != nil {
+		go func() {
+			msgs = append(msgs, Message{
+				Role:    "assistant",
+				Content: res,
+			})
+			chatDb.SetMsgList(userId, chat.toMsgList(msgs))
+		}()
+	}
 	return
 }
 
-// 生成参数
-func generateRequestBody(appid, domain, question string) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
-
-	messages := []Message{
-		{Role: "user", Content: question},
+func (chat *SparkChat) toSparkMsgList(msgList []db.Msg) []Message {
+	var messages []Message
+	for _, msg := range msgList {
+		messages = append(messages, Message{
+			Role:    "user",
+			Content: msg.Msg,
+		})
 	}
+	return messages
+}
 
+func (chat *SparkChat) toMsgList(msgList []Message) []db.Msg {
+	var messages []db.Msg
+	for _, msg := range msgList {
+		messages = append(messages, db.Msg{
+			Role: msg.Role,
+			Msg:  msg.Content,
+		})
+	}
+	return messages
+}
+
+// 生成参数
+func generateRequestBody(appid string, domain string, messages []Message) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
 	data := map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 		"header": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"app_id": appid, // 根据实际情况修改返回的数据结构和字段名
