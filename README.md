@@ -57,5 +57,8 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
 2. 我的域名国内可以访问，但是也不能用? 答: 这个有人反馈过，好像是微信公众平台对一些小众域名不支持
 
+### Star History
+![Star History Chart](https://api.star-history.com/svg?repos=pwh-pwh/aiwechat-vercel&type=Date)
+
 ### 项目灵感来源
 [spark-wechat-vercel](https://github.com/LuhangRui/spark-wechat-vercel)
