@@ -16,7 +16,7 @@ GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
 gptModel=gpt-3.5-turbo gpt模型(选填,默认gpt-3.5-turbo)
 TOKEN=*** 微信公众号开发平台设置的token
-botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
+botType=** 机器人类型 目前支持(gpt,echo,spark,qwen)例如botType=gpt
 ```
 如何检查是否配置成功
 
