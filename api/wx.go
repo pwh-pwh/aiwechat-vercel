@@ -28,7 +28,7 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 	server := officialAccount.GetServer(req, rw)
 	server.SkipValidate(true)
 	//设置接收消息的处理方法
-	bot := chat.GetChatBot()
+	bot := chat.GetChatBot("")
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 		//回复消息：演示回复用户发送的消息
 		msgType := msg.MsgType

@@ -1,38 +1,20 @@
 package api
 
 import (
-	"context"
 	"fmt"
-	"github.com/sashabaranov/go-openai"
 	"net/http"
-	"os"
+
+	"github.com/pwh-pwh/aiwechat-vercel/chat"
 )
 
-func Chat(w http.ResponseWriter, req *http.Request) {
-	token := os.Getenv("GPT_TOKEN")
-	gptUrl := os.Getenv("GPT_URL")
-	cfg := openai.DefaultConfig(token)
-	if gptUrl != "" {
-		cfg.BaseURL = gptUrl
-	}
-	client := openai.NewClientWithConfig(cfg)
+func Chat(rw http.ResponseWriter, req *http.Request) {
 	msg := req.URL.Query().Get("msg")
+	botType := req.URL.Query().Get("botType")
 	if msg == "" {
-		msg = "介绍你自己"
+		msg = "用10个字介绍你自己"
 	}
-	resp, err := client.CreateChatCompletion(context.Background(),
-		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: msg,
-				},
-			},
-		})
-	if err != nil {
-		fmt.Fprintf(w, "gptclient err:%E", err)
-		return
-	}
-	fmt.Fprintf(w, resp.Choices[0].Message.Content)
+	bot := chat.GetChatBot(botType)
+	rpn := bot.Chat("admin", msg)
+
+	fmt.Fprint(rw, rpn)
 }

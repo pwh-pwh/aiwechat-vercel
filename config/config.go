@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"slices"
 	"sync"
 )
 
@@ -13,14 +14,44 @@ const (
 
 var Cache sync.Map
 
-func CheckBotConfig() (botType string, err error) {
-	botType = GetBotType()
-	switch botType {
+func CheckBotConfig(botType string) (actualotType string, err error) {
+	if botType == "" {
+		botType = GetBotType()
+	}
+	actualotType = botType
+	switch actualotType {
 	case Bot_Type_Gpt:
 		err = CheckGptConfig()
 	case Bot_Type_Spark:
 		_, err = GetSparkConfig()
+	case Bot_Type_Qwen:
+		_, err = GetQwenConfig()
 	}
+	return
+}
+
+func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
+	botType = GetBotType()
+	checkRes = map[string]bool{
+		Bot_Type_Echo:  true,
+		Bot_Type_Gpt:   true,
+		Bot_Type_Spark: true,
+		Bot_Type_Qwen:  true,
+	}
+
+	err := CheckGptConfig()
+	if err != nil {
+		checkRes[Bot_Type_Gpt] = false
+	}
+	_, err = GetSparkConfig()
+	if err != nil {
+		checkRes[Bot_Type_Spark] = false
+	}
+	_, err = GetQwenConfig()
+	if err != nil {
+		checkRes[Bot_Type_Qwen] = false
+	}
+
 	return
 }
 
@@ -41,16 +72,18 @@ const (
 	Bot_Type_Echo  = "echo"
 	Bot_Type_Gpt   = "gpt"
 	Bot_Type_Spark = "spark"
+	Bot_Type_Qwen  = "qwen"
+)
+
+var (
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen}
 )
 
 func GetBotType() string {
 	botType := os.Getenv("botType")
-	switch botType {
-	case Bot_Type_Gpt:
-		return Bot_Type_Gpt
-	case Bot_Type_Spark:
-		return Bot_Type_Spark
-	default:
+	if slices.Contains(Support_Bots, botType) {
+		return botType
+	} else {
 		return Bot_Type_Echo
 	}
 }

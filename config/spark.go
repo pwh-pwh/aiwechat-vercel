@@ -33,14 +33,14 @@ func extractVersion(url string) string {
 	return matches[1] + "." + matches[2]
 }
 
-func GetSparkConfig() (cfg SparkConfig, err error) {
+func GetSparkConfig() (cfg *SparkConfig, err error) {
 	var sparkUrl string = os.Getenv(Spark_Host_Url_Key)
 	if sparkUrl == "" {
 		sparkUrl = "wss://spark-api.xf-yun.com/v3.5/chat"
 	}
 	version := extractVersion(sparkUrl)
-	var sparkDomainVersion = "" 
-	
+	var sparkDomainVersion = ""
+
 	switch version {
 	case "3.5":
 		sparkDomainVersion = "generalv3.5"
@@ -54,8 +54,8 @@ func GetSparkConfig() (cfg SparkConfig, err error) {
 		sparkDomainVersion = ""
 	}
 
-	cfg = SparkConfig{
-		HostUrl:            os.Getenv(Spark_Host_Url_Key),
+	cfg = &SparkConfig{
+		HostUrl:            sparkUrl,
 		AppId:              os.Getenv(Spark_App_Id_Key),
 		ApiSecret:          os.Getenv(Spark_App_Secret_Key),
 		ApiKey:             os.Getenv(Spark_ApiKey_Key),

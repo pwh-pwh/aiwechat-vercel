@@ -2,6 +2,8 @@ package chat
 
 import (
 	"context"
+
+	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
 	"os"
@@ -55,7 +57,7 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	}
 	chatDb := db.ChatDbInstance
 	if chatDb != nil {
-		msgList, err := chatDb.GetMsgList(userID)
+		msgList, err := chatDb.GetMsgList(config.Bot_Type_Gpt, userID)
 		if err == nil {
 			list := s.toGptMsgList(msgList)
 			msgs = append(list, msgs...)
@@ -73,7 +75,7 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	if chatDb != nil {
 		go func() {
 			msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
-			chatDb.SetMsgList(userID, s.toChatMsList(msgs))
+			chatDb.SetMsgList(config.Bot_Type_Gpt, userID, s.toChatMsList(msgs))
 		}()
 	}
 

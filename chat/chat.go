@@ -1,10 +1,11 @@
 package chat
 
 import (
-	"github.com/pwh-pwh/aiwechat-vercel/config"
-	"github.com/silenceper/wechat/v2/officialaccount/message"
 	"os"
 	"time"
+
+	"github.com/pwh-pwh/aiwechat-vercel/config"
+	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
 type BaseChat interface {
@@ -66,8 +67,12 @@ func (e *ErrorChat) Chat(userID string, msg string) string {
 	return e.errMsg
 }
 
-func GetChatBot() BaseChat {
-	botType, err := config.CheckBotConfig()
+func GetChatBot(botType string) BaseChat {
+	if botType == "" {
+		botType = config.GetBotType()
+	}
+	var err error
+	botType, err = config.CheckBotConfig(botType)
 	if err != nil {
 		return &ErrorChat{
 			errMsg: err.Error(),
@@ -86,11 +91,18 @@ func GetChatBot() BaseChat {
 			SimpleChat: SimpleChat{},
 		}
 	case config.Bot_Type_Spark:
+		config, _ := config.GetSparkConfig()
 		return &SparkChat{
-			SimpleChat{},
+			BaseChat: SimpleChat{},
+			Config:   config,
+		}
+	case config.Bot_Type_Qwen:
+		config, _ := config.GetQwenConfig()
+		return &QwenChat{
+			BaseChat: SimpleChat{},
+			Config:   config,
 		}
 	default:
 		return &Echo{}
 	}
-
 }

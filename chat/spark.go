@@ -5,12 +5,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/pwh-pwh/aiwechat-vercel/db"
 
 	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
@@ -19,6 +20,7 @@ import (
 
 type SparkChat struct {
 	BaseChat
+	Config *config.SparkConfig
 }
 
 type SparkResponse struct {
@@ -51,21 +53,16 @@ func (chat *SparkChat) Chat(userId, message string) (res string) {
 }
 
 func (chat *SparkChat) chat(userId string, message string) (res string) {
-	cfg, err := config.GetSparkConfig()
-	if err != nil {
-		res = err.Error()
-		return
-	}
 	dialer := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}
 	//握手并建立websocket 连接
-	conn, resp, err := dialer.Dial(assembleAuthUrl1(cfg.HostUrl, cfg.ApiKey, cfg.ApiSecret), nil)
+	conn, resp, err := dialer.Dial(assembleAuthUrl1(chat.Config.HostUrl, chat.Config.ApiKey, chat.Config.ApiSecret), nil)
 	if err != nil {
 		res = readResp(resp) + err.Error()
 		return
 	} else if resp.StatusCode != 101 {
-		res = readResp(resp) + err.Error()
+		res = readResp(resp)
 		return
 	}
 	var msgs = []Message{
@@ -76,15 +73,15 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 	}
 	chatDb := db.ChatDbInstance
 	if chatDb != nil {
-		msgList, err := chatDb.GetMsgList(userId)
+		msgList, err := chatDb.GetMsgList(config.Bot_Type_Spark, userId)
 		if err == nil {
-			list := chat.toSparkMsgList(msgList)
+			list := toSparkMsgList(msgList)
 			msgs = append(list, msgs...)
 		}
 	}
 
 	go func() {
-		data := generateRequestBody(cfg.AppId, cfg.SparkDomainVersion, msgs)
+		data := generateRequestBody(chat.Config.AppId, chat.Config.SparkDomainVersion, msgs)
 		conn.WriteJSON(data)
 	}()
 
@@ -134,13 +131,13 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 				Role:    "assistant",
 				Content: res,
 			})
-			chatDb.SetMsgList(userId, chat.toMsgList(msgs))
+			chatDb.SetMsgList(config.Bot_Type_Spark, userId, toMsgList(msgs))
 		}()
 	}
 	return
 }
 
-func (chat *SparkChat) toSparkMsgList(msgList []db.Msg) []Message {
+func toSparkMsgList(msgList []db.Msg) []Message {
 	var messages []Message
 	for _, msg := range msgList {
 		messages = append(messages, Message{
@@ -151,7 +148,7 @@ func (chat *SparkChat) toSparkMsgList(msgList []db.Msg) []Message {
 	return messages
 }
 
-func (chat *SparkChat) toMsgList(msgList []Message) []db.Msg {
+func toMsgList(msgList []Message) []db.Msg {
 	var messages []db.Msg
 	for _, msg := range msgList {
 		messages = append(messages, db.Msg{

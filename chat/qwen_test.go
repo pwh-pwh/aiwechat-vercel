@@ -9,11 +9,12 @@ import (
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 )
 
-func TestSparkChat(t *testing.T) {
+func TestQwenChat(t *testing.T) {
 	godotenv.Load("../conf/.env")
 	db.ChatDbInstance, _ = db.GetChatDb()
-	config, _ := config.GetSparkConfig()
-	chat := &SparkChat{
+
+	config, _ := config.GetQwenConfig()
+	chat := &QwenChat{
 		BaseChat: SimpleChat{},
 		Config:   config,
 	}
