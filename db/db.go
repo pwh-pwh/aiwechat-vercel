@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/bytedance/sonic"
-	"github.com/go-redis/redis/v8"
 	"os"
 	"time"
+
+	"github.com/bytedance/sonic"
+	"github.com/go-redis/redis/v8"
 )
 
 var ChatDbInstance ChatDb = nil
@@ -28,8 +29,8 @@ type Msg struct {
 }
 
 type ChatDb interface {
-	GetMsgList(userId string) ([]Msg, error)
-	SetMsgList(userId string, msgList []Msg)
+	GetMsgList(botType string, userId string) ([]Msg, error)
+	SetMsgList(botType string, userId string, msgList []Msg)
 }
 
 type RedisChatDb struct {
@@ -49,8 +50,8 @@ func NewRedisChatDb(url string) (*RedisChatDb, error) {
 	}, nil
 }
 
-func (r *RedisChatDb) GetMsgList(userId string) ([]Msg, error) {
-	result, err := r.client.Get(context.Background(), userId).Result()
+func (r *RedisChatDb) GetMsgList(botType string, userId string) ([]Msg, error) {
+	result, err := r.client.Get(context.Background(), fmt.Sprintf("%v:%v", botType, userId)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +63,13 @@ func (r *RedisChatDb) GetMsgList(userId string) ([]Msg, error) {
 	return msgList, nil
 }
 
-func (r *RedisChatDb) SetMsgList(userId string, msgList []Msg) {
+func (r *RedisChatDb) SetMsgList(botType string, userId string, msgList []Msg) {
 	res, err := sonic.Marshal(msgList)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	r.client.Set(context.Background(), userId, res, time.Minute*30)
+	r.client.Set(context.Background(), fmt.Sprintf("%v:%v", botType, userId), res, time.Minute*30)
 }
 
 func GetChatDb() (ChatDb, error) {

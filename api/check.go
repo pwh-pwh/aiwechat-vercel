@@ -7,11 +7,16 @@ import (
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 )
 
-func Check(w http.ResponseWriter, req *http.Request) {
-	botType, err := config.CheckBotConfig()
-	if err != nil {
-		fmt.Fprintf(w, err.Error())
-		return
+func Check(rw http.ResponseWriter, req *http.Request) {
+	botType, checkRes := config.CheckAllBotConfig()
+	var res string
+	for bot, status := range checkRes {
+		if res == "" {
+			res = fmt.Sprintf("%v: %v\n", bot, status)
+		} else {
+			res = fmt.Sprintf("%v\n%v: %v", res, bot, status)
+		}
 	}
-	fmt.Fprintf(w, "BOT [%v] config check passed", botType)
+	res = fmt.Sprintf("%v\nDEFAULT BOT: %v", res, botType)
+	fmt.Fprint(rw, res)
 }

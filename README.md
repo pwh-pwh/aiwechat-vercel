@@ -12,7 +12,6 @@ fork本项目，到vercel点击构建,环境变量填写参数
 更多配置[config](conf/.env.sample)
 
 ```dotenv
-# 更多配置见conf/.env.sample示例文件
 GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
 TOKEN=*** 微信公众号开发平台设置的token
