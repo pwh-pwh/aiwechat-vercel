@@ -15,6 +15,7 @@ fork本项目，到vercel点击构建,环境变量填写参数
 # 更多配置见conf/.env.sample示例文件
 GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
+gptModel=gpt-3.5-turbo gpt模型(选填,默认gpt-3.5-turbo)
 TOKEN=*** 微信公众号开发平台设置的token
 botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 ```
@@ -31,7 +32,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 
 ### 功能支持
 
-1. gpt回复(现在默认3.5 后续添加支持自定义模型)
+1. gpt回复
 2. 超时回复(go协程很好用)
 3. 支持连续问答(只需要在vercel创建一个redis实例，在本项目下的Storage设置连接即可，vercel会自动配置KV_URL环境变量，默认记忆对话30分钟内的内容)
 4. 隐藏功能 你的域名/api/chat?msg=你的问题  (仅用于测试是否配置gpt成功,中文问题会乱码，不用管，是vercel服务器问题)
