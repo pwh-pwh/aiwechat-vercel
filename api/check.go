@@ -12,7 +12,7 @@ func Check(rw http.ResponseWriter, req *http.Request) {
 	var res string
 	for bot, status := range checkRes {
 		if res == "" {
-			res = fmt.Sprintf("%v: %v\n", bot, status)
+			res = fmt.Sprintf("%v: %v", bot, status)
 		} else {
 			res = fmt.Sprintf("%v\n%v: %v", res, bot, status)
 		}

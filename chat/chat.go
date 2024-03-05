@@ -69,12 +69,13 @@ func (e *ErrorChat) Chat(userID string, msg string) string {
 
 func GetChatBot(botType string) BaseChat {
 	if botType == "" {
-		var err error
-		botType, err = config.CheckBotConfig()
-		if err != nil {
-			return &ErrorChat{
-				errMsg: err.Error(),
-			}
+		botType = config.GetBotType()
+	}
+	var err error
+	botType, err = config.CheckBotConfig(botType)
+	if err != nil {
+		return &ErrorChat{
+			errMsg: err.Error(),
 		}
 	}
 

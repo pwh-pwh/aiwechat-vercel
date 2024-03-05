@@ -14,9 +14,12 @@ const (
 
 var Cache sync.Map
 
-func CheckBotConfig() (botType string, err error) {
-	botType = GetBotType()
-	switch botType {
+func CheckBotConfig(botType string) (actualotType string, err error) {
+	if botType == "" {
+		botType = GetBotType()
+	}
+	actualotType = botType
+	switch actualotType {
 	case Bot_Type_Gpt:
 		err = CheckGptConfig()
 	case Bot_Type_Spark:
