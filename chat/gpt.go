@@ -6,6 +6,7 @@ import (
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
+	"os"
 )
 
 type SimpleGptChat struct {
@@ -36,6 +37,14 @@ func (s *SimpleGptChat) toChatMsList(msgList []openai.ChatCompletionMessage) []d
 	return result
 }
 
+func (s *SimpleGptChat) getModel() string {
+	model := os.Getenv("gptModel")
+	if model == "" {
+		model = "gpt-3.5-turbo"
+	}
+	return model
+}
+
 func (s *SimpleGptChat) chat(userID, msg string) string {
 	cfg := openai.DefaultConfig(s.token)
 	cfg.BaseURL = s.url
@@ -56,7 +65,7 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	}
 	resp, err := client.CreateChatCompletion(context.Background(),
 		openai.ChatCompletionRequest{
-			Model:    openai.GPT3Dot5Turbo,
+			Model:    s.getModel(),
 			Messages: msgs,
 		})
 	if err != nil {

@@ -14,6 +14,7 @@ fork本项目，到vercel点击构建,环境变量填写参数
 ```dotenv
 GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
+gptModel=gpt-3.5-turbo gpt模型(选填,默认gpt-3.5-turbo)
 TOKEN=*** 微信公众号开发平台设置的token
 botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 ```
@@ -30,20 +31,18 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 
 ### 功能支持
 
-1. gpt回复(现在默认3.5 后续添加支持自定义模型)
+1. gpt回复
 2. 超时回复(go协程很好用)
-3. 支持连续问答(只需要在vercel创建一个redis实例，在本项目下的Storage设置连接即可，vercel会自动配置KV_URL环境变量)
+3. 支持连续问答(只需要在vercel创建一个redis实例，在本项目下的Storage设置连接即可，vercel会自动配置KV_URL环境变量，默认记忆对话30分钟内的内容)
 4. 隐藏功能 你的域名/api/chat?msg=你的问题  (仅用于测试是否配置gpt成功,中文问题会乱码，不用管，是vercel服务器问题)
 5. 检查配置：你的域名/api/check （显示当前bot的配置信息是否正确）
 6. 支持图床功能，即发送图片给公众号，返回图片url
 
 ### 后续
 
-- 支持国内大部分可以白嫖的ai 如星火(已支持，感谢大佬pr)，等
-- 增加记忆功能(已经实现)
+- 支持国内大部分可以白嫖的ai 如星火(已支持，感谢大佬pr)，通义千问等
 - 增加指令控制，增加管理员设置
 - 增加预定义prompts
-- 增加图床功能(已支持)
 - 被关注自定义回复及关键词自定义回复
 - 支持gemini
 - 支持限制问答次数
@@ -54,7 +53,11 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 
 ### 问题汇总
 1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
-2. 我的域名国内可以访问，但是也不能用? 答: 这个有人反馈过，好像是微信公众平台对一些小众域名不支持
+
+更多功能探讨[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions)
+
+### Star History
+![Star History Chart](https://api.star-history.com/svg?repos=pwh-pwh/aiwechat-vercel&type=Date)
 
 ### 项目灵感来源
 [spark-wechat-vercel](https://github.com/LuhangRui/spark-wechat-vercel)
