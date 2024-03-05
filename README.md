@@ -44,7 +44,6 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 - 支持国内大部分可以白嫖的ai 如星火(已支持，感谢大佬pr)，通义千问等
 - 增加指令控制，增加管理员设置
 - 增加预定义prompts
-- 增加图床功能(已支持)
 - 被关注自定义回复及关键词自定义回复
 - 支持gemini
 - 支持限制问答次数
@@ -55,7 +54,8 @@ botType=** 机器人类型 目前支持(gpt,echo,spark)例如botType=gpt
 
 ### 问题汇总
 1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
-2. 我的域名国内可以访问，但是也不能用? 答: 这个有人反馈过，好像是微信公众平台对一些小众域名不支持
+
+更多功能探讨[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions)
 
 ### Star History
 ![Star History Chart](https://api.star-history.com/svg?repos=pwh-pwh/aiwechat-vercel&type=Date)
