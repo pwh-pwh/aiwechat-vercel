@@ -65,7 +65,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		res = readResp(resp)
 		return
 	}
-	var msgs = []SparkMessage{
+	/*var msgs = []SparkMessage{
 		{
 			Role:    "user",
 			Content: message,
@@ -78,7 +78,11 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 			list := toSparkMsgList(msgList)
 			msgs = append(list, msgs...)
 		}
-	}
+	}*/
+	var msgs = GetMsgListWithDb(config.Bot_Type_Spark, userId, SparkMessage{
+		Role:    "user",
+		Content: message,
+	}, chat.toDbMsg, chat.toChatMsg)
 
 	go func() {
 		data := generateRequestBody(chat.Config.AppId, chat.Config.SparkDomainVersion, msgs)
@@ -125,16 +129,26 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		}
 
 	}
-	if chatDb != nil {
-		go func() {
-			msgs = append(msgs, SparkMessage{
-				Role:    "assistant",
-				Content: res,
-			})
-			chatDb.SetMsgList(config.Bot_Type_Spark, userId, toMsgList(msgs))
-		}()
-	}
+	msgs = append(msgs, SparkMessage{
+		Role:    "assistant",
+		Content: res,
+	})
+	SaveMsgListWithDb(config.Bot_Type_Spark, userId, msgs, chat.toDbMsg)
 	return
+}
+
+func (s *SparkChat) toDbMsg(msg SparkMessage) db.Msg {
+	return db.Msg{
+		Role: msg.Role,
+		Msg:  msg.Content,
+	}
+}
+
+func (s *SparkChat) toChatMsg(msg db.Msg) SparkMessage {
+	return SparkMessage{
+		Role:    msg.Role,
+		Content: msg.Msg,
+	}
 }
 
 func toSparkMsgList(msgList []db.Msg) []SparkMessage {

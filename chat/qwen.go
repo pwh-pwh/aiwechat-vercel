@@ -56,20 +56,11 @@ func (chat *QwenChat) Chat(userId, message string) (res string) {
 }
 
 func (chat *QwenChat) chat(userId string, message string) (res string) {
-	chatDb := db.ChatDbInstance
-	var msgs = []QwenMessage{
-		{
-			Role:    QwenChatUser,
-			Content: message,
-		},
-	}
-	if chatDb != nil {
-		msgList, err := chatDb.GetMsgList(config.Bot_Type_Qwen, userId)
-		if err == nil {
-			list := toQwenMsgList(msgList)
-			msgs = append(list, msgs...)
-		}
-	}
+	var msgs = GetMsgListWithDb(config.Bot_Type_Qwen, userId, QwenMessage{
+		Role:    QwenChatUser,
+		Content: message,
+	}, chat.toDbMsg, chat.toChatMsg)
+
 	qwenReq := QwenRequest{
 		Model: chat.Config.ModelVersion,
 		Input: Input{Messages: msgs},
@@ -114,37 +105,24 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 
 	res = qwenRpn.Output.Text
 
-	if chatDb != nil {
-		go func() {
-			msgs = append(msgs, QwenMessage{
-				Role:    QwenChatBot,
-				Content: res,
-			})
-			chatDb.SetMsgList(config.Bot_Type_Qwen, userId, toDbMsgList(msgs))
-		}()
-	}
-
+	msgs = append(msgs, QwenMessage{
+		Role:    QwenChatBot,
+		Content: res,
+	})
+	SaveMsgListWithDb(config.Bot_Type_Qwen, userId, msgs, chat.toDbMsg)
 	return
 }
 
-func toDbMsgList(msgList []QwenMessage) []db.Msg {
-	var messages []db.Msg
-	for _, msg := range msgList {
-		messages = append(messages, db.Msg{
-			Role: msg.Role,
-			Msg:  msg.Content,
-		})
+func (s *QwenChat) toDbMsg(msg QwenMessage) db.Msg {
+	return db.Msg{
+		Role: msg.Role,
+		Msg:  msg.Content,
 	}
-	return messages
 }
 
-func toQwenMsgList(msgList []db.Msg) []QwenMessage {
-	var messages []QwenMessage
-	for _, msg := range msgList {
-		messages = append(messages, QwenMessage{
-			Role:    msg.Role,
-			Content: msg.Msg,
-		})
+func (s *QwenChat) toChatMsg(msg db.Msg) QwenMessage {
+	return QwenMessage{
+		Role:    msg.Role,
+		Content: msg.Msg,
 	}
-	return messages
 }
