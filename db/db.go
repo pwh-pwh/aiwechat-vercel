@@ -5,8 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/pwh-pwh/aiwechat-vercel/chat"
-	"github.com/sashabaranov/go-openai"
+	"github.com/pwh-pwh/aiwechat-vercel/model"
 	"os"
 	"time"
 
@@ -30,11 +29,7 @@ type Msg struct {
 	Msg  string
 }
 
-type ChatMsg interface {
-	openai.ChatCompletionMessage | chat.QwenMessage | chat.SparkMessage
-}
-
-func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) Msg, f2 func(msg Msg) T) []T {
+func GetMsgListWithDb[T model.ChatMsg](botType, userId string, msg T, f func(msg T) Msg, f2 func(msg Msg) T) []T {
 	if ChatDbInstance != nil {
 		list, err := ChatDbInstance.GetMsgList(botType, userId)
 		if err == nil {
@@ -49,7 +44,7 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) Ms
 	return []T{msg}
 }
 
-func SaveMsgListWithDb[T ChatMsg](botType, userId string, msgList []T, f func(msg T) Msg) {
+func SaveMsgListWithDb[T model.ChatMsg](botType, userId string, msgList []T, f func(msg T) Msg) {
 	if ChatDbInstance != nil {
 		go func() {
 			list := make([]Msg, 0)
