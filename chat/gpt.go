@@ -15,26 +15,18 @@ type SimpleGptChat struct {
 	SimpleChat
 }
 
-func (s *SimpleGptChat) toGptMsgList(msgList []db.Msg) []openai.ChatCompletionMessage {
-	var result []openai.ChatCompletionMessage
-	for _, item := range msgList {
-		result = append(result, openai.ChatCompletionMessage{
-			Role:    item.Role,
-			Content: item.Msg,
-		})
+func (s *SimpleGptChat) toDbMsg(msg openai.ChatCompletionMessage) db.Msg {
+	return db.Msg{
+		Role: msg.Role,
+		Msg:  msg.Content,
 	}
-	return result
 }
 
-func (s *SimpleGptChat) toChatMsList(msgList []openai.ChatCompletionMessage) []db.Msg {
-	var result []db.Msg
-	for _, item := range msgList {
-		result = append(result, db.Msg{
-			Role: item.Role,
-			Msg:  item.Content,
-		})
+func (s *SimpleGptChat) toChatMsg(msg db.Msg) openai.ChatCompletionMessage {
+	return openai.ChatCompletionMessage{
+		Role:    msg.Role,
+		Content: msg.Msg,
 	}
-	return result
 }
 
 func (s *SimpleGptChat) getModel() string {
@@ -49,20 +41,8 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	cfg := openai.DefaultConfig(s.token)
 	cfg.BaseURL = s.url
 	client := openai.NewClientWithConfig(cfg)
-	var msgs = []openai.ChatCompletionMessage{
-		{
-			Role:    openai.ChatMessageRoleUser,
-			Content: msg,
-		},
-	}
-	chatDb := db.ChatDbInstance
-	if chatDb != nil {
-		msgList, err := chatDb.GetMsgList(config.Bot_Type_Gpt, userID)
-		if err == nil {
-			list := s.toGptMsgList(msgList)
-			msgs = append(list, msgs...)
-		}
-	}
+
+	var msgs = db.GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
 	resp, err := client.CreateChatCompletion(context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    s.getModel(),
@@ -72,13 +52,8 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 		return err.Error()
 	}
 	content := resp.Choices[0].Message.Content
-	if chatDb != nil {
-		go func() {
-			msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
-			chatDb.SetMsgList(config.Bot_Type_Gpt, userID, s.toChatMsList(msgs))
-		}()
-	}
-
+	msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
+	db.SaveMsgListWithDb(config.Bot_Type_Gpt, userID, msgs, s.toDbMsg)
 	return content
 }
 

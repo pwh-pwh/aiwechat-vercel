@@ -65,7 +65,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 		res = readResp(resp)
 		return
 	}
-	var msgs = []Message{
+	var msgs = []SparkMessage{
 		{
 			Role:    "user",
 			Content: message,
@@ -127,7 +127,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 	}
 	if chatDb != nil {
 		go func() {
-			msgs = append(msgs, Message{
+			msgs = append(msgs, SparkMessage{
 				Role:    "assistant",
 				Content: res,
 			})
@@ -137,10 +137,10 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 	return
 }
 
-func toSparkMsgList(msgList []db.Msg) []Message {
-	var messages []Message
+func toSparkMsgList(msgList []db.Msg) []SparkMessage {
+	var messages []SparkMessage
 	for _, msg := range msgList {
-		messages = append(messages, Message{
+		messages = append(messages, SparkMessage{
 			Role:    msg.Role,
 			Content: msg.Msg,
 		})
@@ -148,7 +148,7 @@ func toSparkMsgList(msgList []db.Msg) []Message {
 	return messages
 }
 
-func toMsgList(msgList []Message) []db.Msg {
+func toMsgList(msgList []SparkMessage) []db.Msg {
 	var messages []db.Msg
 	for _, msg := range msgList {
 		messages = append(messages, db.Msg{
@@ -160,7 +160,7 @@ func toMsgList(msgList []Message) []db.Msg {
 }
 
 // 生成参数
-func generateRequestBody(appid string, domain string, messages []Message) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+func generateRequestBody(appid string, domain string, messages []SparkMessage) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
 	data := map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 		"header": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"app_id": appid, // 根据实际情况修改返回的数据结构和字段名
@@ -233,7 +233,7 @@ func readResp(resp *http.Response) string {
 	return fmt.Sprintf("code=%d,body=%s", resp.StatusCode, string(b))
 }
 
-type Message struct {
+type SparkMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
