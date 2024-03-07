@@ -49,6 +49,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen)例如botType=gpt
 - 支持gemini
 - 支持限制问答次数
 - 支持企业微信群机器人
+- todolist功能，用户可以在机器人管理待办事件
 
 ### 杂念
 项目起因:偶然看到网上有人使用vercel实现了，自己看了下文档，居然支持go了，就实现了，项目仅供学习参考
