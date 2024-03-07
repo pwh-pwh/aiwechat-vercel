@@ -25,7 +25,11 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			return "哇，又有帅哥美女关注我啦😄"
+			subText := os.Getenv("subscribe")
+			if subText == "" {
+				subText = "哇，又有帅哥美女关注我啦😄"
+			}
+			return subText
 		} else {
 			return "不支持的类型"
 		}
