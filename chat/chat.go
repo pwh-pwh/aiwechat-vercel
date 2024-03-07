@@ -122,12 +122,12 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
 		if err == nil {
 			list = append(list, f(msg))
+			r := make([]T, 0)
+			for _, msg := range list {
+				r = append(r, f2(msg))
+			}
+			return r
 		}
-		r := make([]T, 0)
-		for _, msg := range list {
-			r = append(r, f2(msg))
-		}
-		return r
 	}
 	return []T{msg}
 }
