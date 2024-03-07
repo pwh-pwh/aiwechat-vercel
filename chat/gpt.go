@@ -42,7 +42,7 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	cfg.BaseURL = s.url
 	client := openai.NewClientWithConfig(cfg)
 
-	var msgs = db.GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
+	var msgs = GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
 	resp, err := client.CreateChatCompletion(context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    s.getModel(),
@@ -53,7 +53,7 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	}
 	content := resp.Choices[0].Message.Content
 	msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
-	db.SaveMsgListWithDb(config.Bot_Type_Gpt, userID, msgs, s.toDbMsg)
+	SaveMsgListWithDb(config.Bot_Type_Gpt, userID, msgs, s.toDbMsg)
 	return content
 }
 

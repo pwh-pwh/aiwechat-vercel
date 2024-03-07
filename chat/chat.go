@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"github.com/pwh-pwh/aiwechat-vercel/db"
+	"github.com/pwh-pwh/aiwechat-vercel/model"
 	"os"
 	"time"
 
@@ -108,5 +110,32 @@ func GetChatBot(botType string) BaseChat {
 		}
 	default:
 		return &Echo{}
+	}
+}
+
+func GetMsgListWithDb[T model.ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {
+	if db.ChatDbInstance != nil {
+		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
+		if err == nil {
+			list = append(list, f(msg))
+		}
+		r := make([]T, 0)
+		for _, msg := range list {
+			r = append(r, f2(msg))
+		}
+		return r
+	}
+	return []T{msg}
+}
+
+func SaveMsgListWithDb[T model.ChatMsg](botType, userId string, msgList []T, f func(msg T) db.Msg) {
+	if db.ChatDbInstance != nil {
+		go func() {
+			list := make([]db.Msg, 0)
+			for _, msg := range msgList {
+				list = append(list, f(msg))
+			}
+			db.ChatDbInstance.SetMsgList(botType, userId, list)
+		}()
 	}
 }
