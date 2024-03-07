@@ -2,7 +2,7 @@ package chat
 
 import (
 	"github.com/pwh-pwh/aiwechat-vercel/db"
-	"github.com/pwh-pwh/aiwechat-vercel/model"
+	"github.com/sashabaranov/go-openai"
 	"os"
 	"time"
 
@@ -113,7 +113,11 @@ func GetChatBot(botType string) BaseChat {
 	}
 }
 
-func GetMsgListWithDb[T model.ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {
+type ChatMsg interface {
+	openai.ChatCompletionMessage | QwenMessage | SparkMessage
+}
+
+func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {
 	if db.ChatDbInstance != nil {
 		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
 		if err == nil {
@@ -128,7 +132,7 @@ func GetMsgListWithDb[T model.ChatMsg](botType, userId string, msg T, f func(msg
 	return []T{msg}
 }
 
-func SaveMsgListWithDb[T model.ChatMsg](botType, userId string, msgList []T, f func(msg T) db.Msg) {
+func SaveMsgListWithDb[T ChatMsg](botType, userId string, msgList []T, f func(msg T) db.Msg) {
 	if db.ChatDbInstance != nil {
 		go func() {
 			list := make([]db.Msg, 0)
