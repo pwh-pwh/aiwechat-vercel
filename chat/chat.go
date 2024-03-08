@@ -1,10 +1,12 @@
 package chat
 
 import (
-	"github.com/pwh-pwh/aiwechat-vercel/db"
-	"github.com/sashabaranov/go-openai"
+	"fmt"
 	"os"
 	"time"
+
+	"github.com/pwh-pwh/aiwechat-vercel/db"
+	"github.com/sashabaranov/go-openai"
 
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
@@ -27,11 +29,25 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			subText := os.Getenv("subscribe")
+			subText := config.Wx_Subscribe_Reply
 			if subText == "" {
 				subText = "哇，又有帅哥美女关注我啦😄"
 			}
 			return subText
+		} else if msg.Event == message.EventClick {
+			switch msg.EventKey {
+			case config.Wx_Event_Key_Chat_Gpt:
+				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Gpt, 0)
+				return "我是gpt机器人，开始聊天吧！"
+			case config.Wx_Event_Key_Chat_Spark:
+				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Spark, 0)
+				return "我是星火机器人，开始聊天吧！"
+			case config.Wx_Event_Key_Chat_Qwen:
+				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Qwen, 0)
+				return "我是通义千问机器人，开始聊天吧！"
+			default:
+				return fmt.Sprintf("unkown event key=%v", msg.EventKey)
+			}
 		} else {
 			return "不支持的类型"
 		}
@@ -92,7 +108,7 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:      os.Getenv("GPT_TOKEN"),
+			token:      os.Getenv(config.Gpt_Token),
 			url:        url,
 			SimpleChat: SimpleChat{},
 		}
