@@ -19,7 +19,7 @@ GPT_TOKEN=sk-*** 你的gpt token
 GPT_URL=https://xxx  代理gpt服务器(选填，默认openai官网api 例如https://api.openai.com/v1)
 gptModel=gpt-3.5-turbo gpt模型(选填,默认gpt-3.5-turbo)
 TOKEN=*** 微信公众号开发平台设置的token
-botType=** 机器人类型 目前支持(gpt,echo,spark,qwen)例如botType=gpt
+botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType=gpt
 ```
 如何检查是否配置成功
 
@@ -36,7 +36,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen)例如botType=gpt
 
 ### 功能支持
 
-1. 接入gpt,星火,通义千问
+1. 支持接入gpt,星火,通义千问,gemini
 2. 超时回复(go协程很好用)
 3. 支持连续问答(只需要在vercel创建一个redis实例，在本项目下的Storage设置连接即可，vercel会自动配置KV_URL环境变量，默认记忆对话30分钟内的内容)
 4. 隐藏功能 你的域名/api/chat?msg=你的问题  (仅用于测试是否配置gpt成功,中文问题会乱码，不用管，是vercel服务器问题)
@@ -50,7 +50,6 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen)例如botType=gpt
 - 增加指令控制，增加管理员设置
 - 增加预定义prompts
 - 关键词自定义回复
-- 支持gemini
 - 支持限制问答次数
 - 支持企业微信群机器人
 - todolist功能，用户可以在机器人管理待办事件
