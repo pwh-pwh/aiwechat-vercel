@@ -12,7 +12,7 @@ import (
 type SimpleGptChat struct {
 	token string
 	url   string
-	SimpleChat
+	BaseChat
 }
 
 func (s *SimpleGptChat) toDbMsg(msg openai.ChatCompletionMessage) db.Msg {

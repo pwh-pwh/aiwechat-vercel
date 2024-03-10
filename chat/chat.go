@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"github.com/google/generative-ai-go/genai"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
 	"os"
@@ -92,9 +93,14 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:      os.Getenv("GPT_TOKEN"),
-			url:        url,
-			SimpleChat: SimpleChat{},
+			token:    os.Getenv("GPT_TOKEN"),
+			url:      url,
+			BaseChat: SimpleChat{},
+		}
+	case config.Bot_Type_Gemini:
+		return &GeminiChat{
+			BaseChat: SimpleChat{},
+			key:      os.Getenv("geminiKey"),
 		}
 	case config.Bot_Type_Spark:
 		config, _ := config.GetSparkConfig()
@@ -114,7 +120,7 @@ func GetChatBot(botType string) BaseChat {
 }
 
 type ChatMsg interface {
-	openai.ChatCompletionMessage | QwenMessage | SparkMessage
+	openai.ChatCompletionMessage | QwenMessage | SparkMessage | *genai.Content
 }
 
 func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {

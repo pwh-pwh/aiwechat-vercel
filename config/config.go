@@ -26,6 +26,8 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 		_, err = GetSparkConfig()
 	case Bot_Type_Qwen:
 		_, err = GetQwenConfig()
+	case Bot_Type_Gemini:
+		err = CheckGeminiConfig()
 	}
 	return
 }
@@ -33,10 +35,11 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 	botType = GetBotType()
 	checkRes = map[string]bool{
-		Bot_Type_Echo:  true,
-		Bot_Type_Gpt:   true,
-		Bot_Type_Spark: true,
-		Bot_Type_Qwen:  true,
+		Bot_Type_Echo:   true,
+		Bot_Type_Gpt:    true,
+		Bot_Type_Spark:  true,
+		Bot_Type_Qwen:   true,
+		Bot_Type_Gemini: true,
 	}
 
 	err := CheckGptConfig()
@@ -51,7 +54,10 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 	if err != nil {
 		checkRes[Bot_Type_Qwen] = false
 	}
-
+	err = CheckGeminiConfig()
+	if err != nil {
+		checkRes[Bot_Type_Gemini] = false
+	}
 	return
 }
 
@@ -68,15 +74,24 @@ func CheckGptConfig() error {
 	return nil
 }
 
+func CheckGeminiConfig() error {
+	key := os.Getenv("geminiKey")
+	if key == "" {
+		return errors.New("请配置geminiKey")
+	}
+	return nil
+}
+
 const (
-	Bot_Type_Echo  = "echo"
-	Bot_Type_Gpt   = "gpt"
-	Bot_Type_Spark = "spark"
-	Bot_Type_Qwen  = "qwen"
+	Bot_Type_Echo   = "echo"
+	Bot_Type_Gpt    = "gpt"
+	Bot_Type_Spark  = "spark"
+	Bot_Type_Qwen   = "qwen"
+	Bot_Type_Gemini = "gemini"
 )
 
 var (
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
 )
 
 func GetBotType() string {
