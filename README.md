@@ -7,7 +7,10 @@
 
 ### 快速开始
 
-fork本项目，到vercel点击构建,环境变量填写参数
+提前到vercel的dashboard的Storage创建redis数据库
+
+fork本项目，到vercel点击构建,环境变量填写参数，在vercel该项目详情页面的Storage选择连接前面创建的redis数据库
+,成功后vercel会自动配置KV_URL环境变量
 
 更多配置[config](conf/.env.sample)
 
