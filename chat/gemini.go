@@ -47,7 +47,7 @@ func (s *GeminiChat) chat(userId, msg string) string {
 		Role: GeminiUser,
 	}, s.toDbMsg, s.toChatMsg)
 	if len(msgs) > 1 {
-		cs.History = msgs[:len(msgs)]
+		cs.History = msgs[:len(msgs)-1]
 	}
 
 	resp, err := cs.SendMessage(ctx, genai.Text(msg))
