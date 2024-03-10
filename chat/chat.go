@@ -43,10 +43,10 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 
 // 加入超时控制
 func WithTimeChat(userID, msg string, f func(userID, msg string) string) string {
-	if _, ok := config.Cache.Load(userID); ok {
-		rAny, _ := config.Cache.Load(userID)
+	if _, ok := config.Cache.Load(userID + msg); ok {
+		rAny, _ := config.Cache.Load(userID + msg)
 		r := rAny.(string)
-		config.Cache.Delete(userID)
+		config.Cache.Delete(userID + msg)
 		return r
 	}
 	resChan := make(chan string)
@@ -57,7 +57,7 @@ func WithTimeChat(userID, msg string, f func(userID, msg string) string) string 
 	case res := <-resChan:
 		return res
 	case <-time.After(5 * time.Second):
-		config.Cache.Store(userID, <-resChan)
+		config.Cache.Store(userID+msg, <-resChan)
 		return ""
 	}
 }
