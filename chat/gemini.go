@@ -63,6 +63,6 @@ func (s *GeminiChat) chat(userId, msg string) string {
 }
 
 func (g *GeminiChat) Chat(userID string, msg string) string {
-	//TODO implement me
-	panic("implement me")
+	return WithTimeChat(userID, msg, g.chat)
+
 }
