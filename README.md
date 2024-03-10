@@ -12,6 +12,11 @@
 fork本项目，到vercel点击构建,环境变量填写参数，在vercel该项目详情页面的Storage选择连接前面创建的redis数据库
 ,成功后vercel会自动配置KV_URL环境变量
 
+#### 数据库配置详情
+
+图片步骤:
+> ![config](http://mmbiz.qpic.cn/mmbiz_jpg/6q5SCtonIfFYZpvZdOUbibQBicXkllyO3K6XOp2zUv6PE3e1tqpfYA7wSYRWByZX9Wibibq9PDr6ML4iaiacTWNAaI9Q/0)
+
 更多配置[config](conf/.env.sample)
 
 ```dotenv
