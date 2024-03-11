@@ -52,7 +52,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 9. 支持指令
 
 ### 指令支持
-1. /help：查看帮助\n
+1. /help：查看帮助
 2. /gpt：切换与GPT对话
 3. /spark：切换与星火对话
 4. /qwen：切换与通义千问对话
