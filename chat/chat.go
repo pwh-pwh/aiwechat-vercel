@@ -16,8 +16,20 @@ import (
 )
 
 var actionMap = map[string]func(param, userId string) string{
-	"/help": func(param, userId string) string {
-		return "/help 查看帮助\n"
+	config.Wx_Command_Help: func(param, userId string) string {
+		return config.GetWxHelpReply()
+	},
+	config.Wx_Command_Gpt: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Gpt)
+	},
+	config.Wx_Command_Spark: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Spark)
+	},
+	config.Wx_Command_Qwen: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Qwen)
+	},
+	config.Wx_Command_Gemini: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
 }
 
@@ -31,7 +43,7 @@ func DoAction(userId, msg string) (r string, flag bool) {
 }
 
 func isAction(msg string) (string, string, bool) {
-	for key, _ := range actionMap {
+	for key := range actionMap {
 		if strings.HasPrefix(msg, key) {
 			return msg[:len(key)], strings.TrimSpace(msg[len(key):]), true
 		}

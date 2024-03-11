@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/pwh-pwh/aiwechat-vercel/chat"
 	"github.com/pwh-pwh/aiwechat-vercel/config"
@@ -48,34 +47,13 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 func handleWxMessage(msg *message.MixMessage) (replyMsg string) {
 	msgType := msg.MsgType
 	msgContent := msg.Content
-
 	userId := string(msg.FromUserName)
 	bot := chat.GetChatBot(config.GetUserBotType(userId))
 	if msgType == message.MsgTypeText {
-		if slices.Contains(config.Wx_Commands, msgContent) {
-			replyMsg = handleCommand(userId, msgContent)
-			return
-		}
 		replyMsg = bot.Chat(userId, msgContent)
 	} else {
 		replyMsg = bot.HandleMediaMsg(msg)
 	}
 
-	return
-}
-
-func handleCommand(userId, msgContent string) (replyMsg string) {
-	switch msgContent {
-	case config.Wx_Command_Help:
-		replyMsg = config.GetWxHelpReply()
-	case config.Wx_Command_Gpt:
-		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Gpt)
-	case config.Wx_Command_Spark:
-		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Spark)
-	case config.Wx_Command_Qwen:
-		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Qwen)
-	case config.Wx_Command_Gemini:
-		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Gemini)
-	}
 	return
 }
