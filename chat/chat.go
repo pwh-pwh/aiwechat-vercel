@@ -5,11 +5,36 @@ import (
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
+
+var actionMap = map[string]func(param, userId string) string{
+	"/help": func(param, userId string) string {
+		return "/help 查看帮助\n"
+	},
+}
+
+func DoAction(userId, msg string) (r string, flag bool) {
+	action, param, flag := isAction(msg)
+	if flag {
+		f := actionMap[action]
+		r = f(param, userId)
+	}
+	return
+}
+
+func isAction(msg string) (string, string, bool) {
+	for key, _ := range actionMap {
+		if strings.HasPrefix(msg, key) {
+			return msg[:len(key)], strings.TrimSpace(msg[len(key):]), true
+		}
+	}
+	return "", "", false
+}
 
 type BaseChat interface {
 	Chat(userID string, msg string) string
