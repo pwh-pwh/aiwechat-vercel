@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/pwh-pwh/aiwechat-vercel/chat"
-	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"net/http"
 )
 
@@ -15,10 +15,9 @@ func Chat(rw http.ResponseWriter, req *http.Request) {
 	}
 	bot := chat.GetChatBot(botType)
 	rpn := bot.Chat("admin", msg)
-	encoder := charmap.Windows1252.NewEncoder()
-	s, e := encoder.String(rpn)
-	if e != nil {
-		fmt.Fprint(rw, e.Error())
+	s, err := simplifiedchinese.GBK.NewEncoder().String(rpn)
+	if err != nil {
+		fmt.Fprint(rw, err.Error())
 		return
 	}
 	fmt.Fprint(rw, s)
