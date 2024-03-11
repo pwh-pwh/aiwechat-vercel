@@ -7,8 +7,12 @@ const (
 	Gemini_Key               = "geminiKey"
 )
 
-func GetGeminiWelcomeReply() string {
-	return os.Getenv(Gemini_Welcome_Reply_Key)
+func GetGeminiWelcomeReply() (r string) {
+	r = os.Getenv(Gemini_Welcome_Reply_Key)
+	if r == "" {
+		r = "我是gemini，开始聊天吧！"
+	}
+	return
 }
 
 func GetGeminiKey() string {

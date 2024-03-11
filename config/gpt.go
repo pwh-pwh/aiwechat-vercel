@@ -7,8 +7,12 @@ const (
 	Gpt_Token             = "GPT_TOKEN"
 )
 
-func GetGptWelcomeReply() string {
-	return os.Getenv(Gpt_Welcome_Reply_Key)
+func GetGptWelcomeReply() (r string) {
+	r = os.Getenv(Gpt_Welcome_Reply_Key)
+	if r == "" {
+		r = "我是gpt，开始聊天吧！"
+	}
+	return
 }
 
 func GetGptToken() string {

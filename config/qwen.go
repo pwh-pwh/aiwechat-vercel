@@ -53,6 +53,10 @@ func GetQwenModelVersion() string {
 	return os.Getenv(Qwen_Model_Version_Key)
 }
 
-func GetQwenWelcomeReply() string {
-	return os.Getenv(Qwen_Welcome_Reply_Key)
+func GetQwenWelcomeReply() (r string) {
+	r = os.Getenv(Qwen_Welcome_Reply_Key)
+	if r == "" {
+		r = "我是通义千问机器人，开始聊天吧！"
+	}
+	return
 }

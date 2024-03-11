@@ -103,6 +103,10 @@ func GetSparApiKey() string {
 	return os.Getenv(Spark_ApiKey_Key)
 }
 
-func GetSparkWelcomeReply() string {
-	return os.Getenv(Spark_Welcome_Reply_Key)
+func GetSparkWelcomeReply() (r string) {
+	r = os.Getenv(Spark_Welcome_Reply_Key)
+	if r == "" {
+		r = "我是讯飞星火机器人，开始聊天吧！"
+	}
+	return
 }
