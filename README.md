@@ -44,7 +44,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 1. 支持接入gpt,星火,通义千问,gemini
 2. 超时回复(go协程很好用)
 3. 支持连续问答(只需要在vercel创建一个redis实例，在本项目下的Storage设置连接即可，vercel会自动配置KV_URL环境变量，默认记忆对话30分钟内的内容)
-4. 隐藏功能 你的域名/api/chat?msg=你的问题  (仅用于测试是否配置gpt成功,中文问题会乱码，不用管，是vercel服务器问题)
+4. 隐藏功能 你的域名/api/chat?msg=你的问题  (仅用于测试是否配置gpt成功,也可用作于简单的接口api,中文乱码问题已修复)
 5. 检查配置：你的域名/api/check （显示当前bot的配置信息是否正确）
 6. 支持图床功能，即发送图片给公众号，返回图片url
 7. 被关注自定义回复
