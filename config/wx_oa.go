@@ -40,7 +40,12 @@ func GetWxSubscribeReply() string {
 	return os.Getenv(Wx_Subscribe_Reply_key)
 }
 func GetWxHelpReply() string {
-	return strings.ReplaceAll(os.Getenv(Wx_Help_Reply_key), "\\n", "\n")
+	//输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话
+	helpMsg := os.Getenv(Wx_Help_Reply_key)
+	if helpMsg == "" {
+		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话"
+	}
+	return strings.ReplaceAll(helpMsg, "\\n", "\n")
 }
 func GetWxEventKeyChatGpt() string {
 	return os.Getenv(Wx_Event_Key_Chat_Gpt_key)
