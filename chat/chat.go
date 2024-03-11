@@ -102,11 +102,11 @@ func SetPrompt(param, userId string) string {
 	botType := config.GetUserBotType(userId)
 	switch botType {
 	case config.Bot_Type_Gpt:
-		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+		db.SetPrompt(userId, botType, param)
 	case config.Bot_Type_Qwen:
-		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+		db.SetPrompt(userId, botType, param)
 	case config.Bot_Type_Spark:
-		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+		db.SetPrompt(userId, botType, param)
 	default:
 		return fmt.Sprintf("%s 不支持设置system prompt", botType)
 	}
