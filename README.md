@@ -1,5 +1,5 @@
 # aiwechat-vercel
-使用vercel的functions，将ai功能加入微信公众号
+使用[vercel](https://vercel.com/dashboard)的functions，将ai功能加入微信公众号
 
 ### 介绍
 
@@ -35,7 +35,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 到vercel的该项目添加自定义域名(使用国内网络在访问你的域名/api/check看看能否访问)
 
 微信公众号配置:
-> 微信公众号。后台管理页面上找到`设置与开发`-`基本配置`-`服务器配置`，修改服务器地址url为`https://你的域名/api/wx` 消息加解密选择明文模式(后续添加支持加密)
+> 微信公众号。[微信公众平台](https://mp.weixin.qq.com/)后台管理页面上找到`设置与开发`-`基本配置`-`服务器配置`，修改服务器地址url为`https://你的域名/api/wx` 消息加解密选择明文模式(后续添加支持加密)
 
 录制了一期简单的视频教程供参考[b站](https://b23.tv/BNWDKu1)
 
