@@ -12,13 +12,6 @@ const (
 	Qwen_Welcome_Reply_Key = "qwenWelcomeReply"
 )
 
-var (
-	Qwen_Host_Url      = os.Getenv(Qwen_Host_Url_Key)
-	Qwen_ApiKey        = os.Getenv(Qwen_ApiKey_Key)
-	Qwen_Model_Version = os.Getenv(Qwen_Model_Version_Key)
-	Qwen_Welcome_Reply = os.Getenv(Qwen_Welcome_Reply_Key)
-)
-
 type QwenConfig struct {
 	HostUrl      string
 	ApiKey       string
@@ -27,9 +20,9 @@ type QwenConfig struct {
 
 func GetQwenConfig() (cfg *QwenConfig, err error) {
 	cfg = &QwenConfig{
-		HostUrl:      Qwen_Host_Url,
-		ApiKey:       Qwen_ApiKey,
-		ModelVersion: Qwen_Model_Version,
+		HostUrl:      GetQwenHostUrl(),
+		ApiKey:       GetQwenApiKey(),
+		ModelVersion: GetQwenModelVersion(),
 	}
 
 	if cfg.HostUrl == "" {
@@ -46,4 +39,20 @@ func GetQwenConfig() (cfg *QwenConfig, err error) {
 	}
 
 	return
+}
+
+func GetQwenHostUrl() string {
+	return os.Getenv(Qwen_Host_Url_Key)
+}
+
+func GetQwenApiKey() string {
+	return os.Getenv(Qwen_ApiKey_Key)
+}
+
+func GetQwenModelVersion() string {
+	return os.Getenv(Qwen_Model_Version_Key)
+}
+
+func GetQwenWelcomeReply() string {
+	return os.Getenv(Qwen_Welcome_Reply_Key)
 }

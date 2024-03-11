@@ -1,10 +1,11 @@
 package chat
 
 import (
-	"github.com/google/generative-ai-go/genai"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/google/generative-ai-go/genai"
 
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
@@ -30,18 +31,18 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			subText := config.Wx_Subscribe_Reply + config.Wx_Help_Reply
+			subText := config.GetWxSubscribeReply() + config.GetWxHelpReply()
 			if subText == "" {
 				subText = "哇，又有帅哥美女关注我啦😄"
 			}
 			return subText
 		} else if msg.Event == message.EventClick {
 			switch msg.EventKey {
-			case config.Wx_Event_Key_Chat_Gpt:
+			case config.GetWxEventKeyChatGpt():
 				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Gpt)
-			case config.Wx_Event_Key_Chat_Spark:
+			case config.GetWxEventKeyChatSpark():
 				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Spark)
-			case config.Wx_Event_Key_Chat_Qwen:
+			case config.GetWxEventKeyChatQwen():
 				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Qwen)
 			default:
 				return fmt.Sprintf("unkown event key=%v", msg.EventKey)
@@ -56,7 +57,7 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 
 func SwitchUserBot(userId string, botType string) string {
 	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
-	return config.Bot_Welcome_Reply[botType]
+	return config.GetBotWelcomeReply(botType)
 }
 
 // 加入超时控制
@@ -111,14 +112,14 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:    os.Getenv(config.Gpt_Token),
+			token:    config.GetGptToken(),
 			url:      url,
 			BaseChat: SimpleChat{},
 		}
 	case config.Bot_Type_Gemini:
 		return &GeminiChat{
 			BaseChat: SimpleChat{},
-			key:      os.Getenv("geminiKey"),
+			key:      config.GetGeminiKey(),
 		}
 	case config.Bot_Type_Spark:
 		config, _ := config.GetSparkConfig()

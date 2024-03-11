@@ -14,8 +14,6 @@ const (
 	GPT  = "gpt"
 	ECHO = "echo"
 
-	Gpt_Token = "GPT_TOKEN"
-
 	Bot_Type_Key    = "botType"
 	Bot_Type_Echo   = "echo"
 	Bot_Type_Gpt    = "gpt"
@@ -27,13 +25,7 @@ const (
 var (
 	Cache sync.Map
 
-	Bot_Type = os.Getenv(Bot_Type_Key)
-
-	Bot_Welcome_Reply = map[string]string{
-		Bot_Type_Gpt:   Gpt_Welcome_Reply,
-		Bot_Type_Spark: Spark_Welcome_Reply,
-		Bot_Type_Qwen:  Qwen_Welcome_Reply,
-	}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
 )
 
 func CheckBotConfig(botType string) (actualotType string, err error) {
@@ -84,8 +76,8 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 }
 
 func CheckGptConfig() error {
-	gptToken := os.Getenv(Gpt_Token)
-	token := os.Getenv(Wx_Token)
+	gptToken := GetGptToken()
+	token := GetWxToken()
 	botType := GetBotType()
 	if token == "" {
 		return errors.New("请配置微信TOKEN")
@@ -97,19 +89,15 @@ func CheckGptConfig() error {
 }
 
 func CheckGeminiConfig() error {
-	key := os.Getenv("geminiKey")
+	key := GetGeminiKey()
 	if key == "" {
 		return errors.New("请配置geminiKey")
 	}
 	return nil
 }
 
-var (
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
-)
-
 func GetBotType() string {
-	botType := Bot_Type
+	botType := os.Getenv(Bot_Type_Key)
 	if slices.Contains(Support_Bots, botType) {
 		return botType
 	} else {

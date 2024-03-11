@@ -19,7 +19,7 @@ func Wx(rw http.ResponseWriter, req *http.Request) {
 	cfg := &offConfig.Config{
 		AppID:     "",
 		AppSecret: "",
-		Token:     config.Wx_Token,
+		Token:     config.GetWxToken(),
 		Cache:     memory,
 	}
 	officialAccount := wc.GetOfficialAccount(cfg)
@@ -67,13 +67,15 @@ func handleWxMessage(msg *message.MixMessage) (replyMsg string) {
 func handleCommand(userId, msgContent string) (replyMsg string) {
 	switch msgContent {
 	case config.Wx_Command_Help:
-		replyMsg = config.Wx_Help_Reply
+		replyMsg = config.GetWxHelpReply()
 	case config.Wx_Command_Gpt:
 		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Gpt)
 	case config.Wx_Command_Spark:
 		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Spark)
 	case config.Wx_Command_Qwen:
 		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Qwen)
+	case config.Wx_Command_Gemini:
+		replyMsg = chat.SwitchUserBot(userId, config.Bot_Type_Gemini)
 	}
 	return
 }

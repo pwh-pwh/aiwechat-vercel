@@ -4,8 +4,13 @@ import "os"
 
 const (
 	Gpt_Welcome_Reply_Key = "gptWelcomeReply"
+	Gpt_Token             = "GPT_TOKEN"
 )
 
-var (
-	Gpt_Welcome_Reply = os.Getenv(Gpt_Welcome_Reply_Key)
-)
+func GetGptWelcomeReply() string {
+	return os.Getenv(Gpt_Welcome_Reply_Key)
+}
+
+func GetGptToken() string {
+	return os.Getenv(Gpt_Token)
+}

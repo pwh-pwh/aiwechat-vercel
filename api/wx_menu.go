@@ -23,9 +23,9 @@ func WxMenu(rpn http.ResponseWriter, req *http.Request) {
 	wc := wechat.NewWechat()
 	memory := cache.NewMemory()
 	cfg := &oaConfig.Config{
-		AppID:     config.Wx_App_Id,
-		AppSecret: config.Wx_App_Secret,
-		Token:     config.Wx_Token,
+		AppID:     config.GetWxAppId(),
+		AppSecret: config.GetWxAppSecret(),
+		Token:     config.GetWxToken(),
 		Cache:     memory,
 	}
 	oa := wc.GetOfficialAccount(cfg)
