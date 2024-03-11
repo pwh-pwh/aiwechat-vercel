@@ -21,6 +21,7 @@ const (
 	Wx_Command_Spark  = "/spark"
 	Wx_Command_Qwen   = "/qwen"
 	Wx_Command_Gemini = "/gemini"
+	Wx_Command_Prompt = "/prompt"
 )
 
 var (
@@ -40,10 +41,10 @@ func GetWxSubscribeReply() string {
 	return os.Getenv(Wx_Subscribe_Reply_key)
 }
 func GetWxHelpReply() string {
-	//输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话
 	helpMsg := os.Getenv(Wx_Help_Reply_key)
 	if helpMsg == "" {
-		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话"
+		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
+			"设置prompt: /prompt 你的prompt:"
 	}
 	return strings.ReplaceAll(helpMsg, "\\n", "\n")
 }

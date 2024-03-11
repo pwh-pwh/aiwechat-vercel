@@ -125,9 +125,16 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	if expires == 0 {
 		expires = time.Minute * 30
 	}
-	go func() {
-		_ = RedisClient.Set(context.Background(), key, val, expires).Err()
-	}()
+
+	err = RedisClient.Set(context.Background(), key, val, expires).Err()
 
 	return
+}
+
+func SetPrompt(userId, botType, prompt string) {
+	SetValue(fmt.Sprintf("%s:%s", userId, botType), prompt, 0)
+}
+
+func GetPrompt(userId, botType string) (string, error) {
+	return GetValue(fmt.Sprintf("%s:%s", userId, botType))
 }

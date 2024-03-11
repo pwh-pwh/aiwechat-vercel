@@ -28,6 +28,10 @@ var (
 	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
 )
 
+func IsSupportPrompt(botType string) bool {
+	return botType == Bot_Type_Gpt || botType == Bot_Type_Qwen || botType == Bot_Type_Spark
+}
+
 func CheckBotConfig(botType string) (actualotType string, err error) {
 	if botType == "" {
 		botType = GetBotType()

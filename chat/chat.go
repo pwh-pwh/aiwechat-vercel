@@ -31,6 +31,7 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
+	config.Wx_Command_Prompt: SetPrompt,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -95,6 +96,21 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 func SwitchUserBot(userId string, botType string) string {
 	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
 	return config.GetBotWelcomeReply(botType)
+}
+
+func SetPrompt(param, userId string) string {
+	botType := config.GetUserBotType(userId)
+	switch botType {
+	case config.Bot_Type_Gpt:
+		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+	case config.Bot_Type_Qwen:
+		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+	case config.Bot_Type_Spark:
+		db.SetValue(fmt.Sprintf("%s:%s", userId, botType), param, 0)
+	default:
+		return fmt.Sprintf("%s 不支持设置system prompt", botType)
+	}
+	return fmt.Sprintf("%s 设置prompt成功", botType)
 }
 
 // 加入超时控制
@@ -182,6 +198,18 @@ type ChatMsg interface {
 func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {
 	if db.ChatDbInstance != nil {
 		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
+		isSupportPrompt := config.IsSupportPrompt(botType)
+		if isSupportPrompt {
+			prompt, err := db.GetPrompt(userId, botType)
+			if err != nil {
+				list = append([]db.Msg{
+					{
+						Role: "system",
+						Msg:  prompt,
+					},
+				}, list...)
+			}
+		}
 		if err == nil {
 			list = append(list, f(msg))
 			r := make([]T, 0)
