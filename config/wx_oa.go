@@ -38,7 +38,8 @@ func GetWxAppSecret() string {
 	return os.Getenv(Wx_App_Secret_key)
 }
 func GetWxSubscribeReply() string {
-	return os.Getenv(Wx_Subscribe_Reply_key)
+	subscribeMsg := os.Getenv(Wx_Subscribe_Reply_key)
+	return strings.ReplaceAll(subscribeMsg, "\\n", "\n")
 }
 func GetWxHelpReply() string {
 	helpMsg := os.Getenv(Wx_Help_Reply_key)
