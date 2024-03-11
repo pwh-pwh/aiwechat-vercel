@@ -58,5 +58,9 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 }
 
 func (s *SimpleGptChat) Chat(userID string, msg string) string {
+	r, flag := DoAction(userID, msg)
+	if flag {
+		return r
+	}
 	return WithTimeChat(userID, msg, s.chat)
 }

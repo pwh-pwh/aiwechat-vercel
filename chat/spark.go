@@ -49,6 +49,10 @@ func (header *SparkResponseHeader) ToString() string {
 }
 
 func (chat *SparkChat) Chat(userId, message string) (res string) {
+	r, flag := DoAction(userId, message)
+	if flag {
+		return r
+	}
 	return WithTimeChat(userId, message, chat.chat)
 }
 
