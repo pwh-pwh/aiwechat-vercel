@@ -7,17 +7,19 @@ import (
 )
 
 const (
-	Spark_Host_Url_Key   = "sparkUrl"
-	Spark_App_Id_Key     = "sparkAppId"
-	Spark_App_Secret_Key = "sparkAppSecret"
-	Spark_ApiKey_Key     = "sparkApiKey"
+	Spark_Host_Url_Key      = "sparkUrl"
+	Spark_App_Id_Key        = "sparkAppId"
+	Spark_App_Secret_Key    = "sparkAppSecret"
+	Spark_ApiKey_Key        = "sparkApiKey"
+	Spark_Welcome_Reply_Key = "sparkWelcomeReply"
 )
 
 var (
-	Spark_Host_Url   = os.Getenv(Spark_Host_Url_Key)
-	Spark_App_Id     = os.Getenv(Spark_App_Id_Key)
-	Spark_App_Secret = os.Getenv(Spark_App_Secret_Key)
-	Spark_ApiKey     = os.Getenv(Spark_ApiKey_Key)
+	Spark_Host_Url      = os.Getenv(Spark_Host_Url_Key)
+	Spark_App_Id        = os.Getenv(Spark_App_Id_Key)
+	Spark_App_Secret    = os.Getenv(Spark_App_Secret_Key)
+	Spark_ApiKey        = os.Getenv(Spark_ApiKey_Key)
+	Spark_Welcome_Reply = os.Getenv(Spark_Welcome_Reply_Key)
 )
 
 type SparkConfig struct {

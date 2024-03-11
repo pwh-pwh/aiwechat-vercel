@@ -29,7 +29,7 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			subText := config.Wx_Subscribe_Reply
+			subText := config.Wx_Subscribe_Reply + config.Wx_Help_Reply
 			if subText == "" {
 				subText = "哇，又有帅哥美女关注我啦😄"
 			}
@@ -37,14 +37,11 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		} else if msg.Event == message.EventClick {
 			switch msg.EventKey {
 			case config.Wx_Event_Key_Chat_Gpt:
-				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Gpt, 0)
-				return "我是gpt机器人，开始聊天吧！"
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Gpt)
 			case config.Wx_Event_Key_Chat_Spark:
-				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Spark, 0)
-				return "我是星火机器人，开始聊天吧！"
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Spark)
 			case config.Wx_Event_Key_Chat_Qwen:
-				db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, string(msg.FromUserName)), config.Bot_Type_Qwen, 0)
-				return "我是通义千问机器人，开始聊天吧！"
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Qwen)
 			default:
 				return fmt.Sprintf("unkown event key=%v", msg.EventKey)
 			}
@@ -54,6 +51,11 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 	default:
 		return "未支持的类型"
 	}
+}
+
+func SwitchUserBot(userId string, botType string) string {
+	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
+	return config.Bot_Welcome_Reply[botType]
 }
 
 // 加入超时控制

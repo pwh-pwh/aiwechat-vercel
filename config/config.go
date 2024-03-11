@@ -27,6 +27,12 @@ var (
 	Cache sync.Map
 
 	Bot_Type = os.Getenv(Bot_Type_Key)
+
+	Bot_Welcome_Reply = map[string]string{
+		Bot_Type_Gpt:   Gpt_Welcome_Reply,
+		Bot_Type_Spark: Spark_Welcome_Reply,
+		Bot_Type_Qwen:  Qwen_Welcome_Reply,
+	}
 )
 
 func CheckBotConfig(botType string) (actualotType string, err error) {

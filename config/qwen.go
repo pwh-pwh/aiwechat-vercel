@@ -9,12 +9,14 @@ const (
 	Qwen_Host_Url_Key      = "qwenUrl"
 	Qwen_ApiKey_Key        = "qwenApiKey"
 	Qwen_Model_Version_Key = "qwenModelVersion"
+	Qwen_Welcome_Reply_Key = "qwenWelcomeReply"
 )
 
 var (
 	Qwen_Host_Url      = os.Getenv(Qwen_Host_Url_Key)
 	Qwen_ApiKey        = os.Getenv(Qwen_ApiKey_Key)
 	Qwen_Model_Version = os.Getenv(Qwen_Model_Version_Key)
+	Qwen_Welcome_Reply = os.Getenv(Qwen_Welcome_Reply_Key)
 )
 
 type QwenConfig struct {
