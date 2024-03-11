@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -15,6 +16,7 @@ import (
 var (
 	ChatDbInstance ChatDb        = nil
 	RedisClient    *redis.Client = nil
+	Cache          sync.Map
 )
 
 func init() {
@@ -89,16 +91,34 @@ func GetChatDb() (ChatDb, error) {
 	}
 }
 
+func GetValueWithMemory(key any) (string, bool) {
+	value, ok := Cache.Load(key)
+	if ok {
+		return value.(string), ok
+	}
+	return "", false
+}
+
+func SetValueWithMemory(key, val any) {
+	Cache.Store(key, val)
+}
+
 func GetValue(key string) (val string, err error) {
-	if RedisClient == nil {
+	val, flag := GetValueWithMemory(key)
+	if !flag {
+		if RedisClient == nil {
+			return
+		}
+		val, err = RedisClient.Get(context.Background(), key).Result()
+		SetValueWithMemory(key, val)
 		return
 	}
-	val, err = RedisClient.Get(context.Background(), key).Result()
-
 	return
 }
 
 func SetValue(key string, val any, expires time.Duration) (err error) {
+	SetValueWithMemory(key, val)
+
 	if RedisClient == nil {
 		return
 	}
