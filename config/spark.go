@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	Spark_Host_Url_Key   = "sparkUrl"
-	Spark_App_Id_Key     = "sparkAppId"
-	Spark_App_Secret_Key = "sparkAppSecret"
-	Spark_ApiKey_Key     = "sparkApiKey"
+	Spark_Host_Url_Key      = "sparkUrl"
+	Spark_App_Id_Key        = "sparkAppId"
+	Spark_App_Secret_Key    = "sparkAppSecret"
+	Spark_ApiKey_Key        = "sparkApiKey"
+	Spark_Welcome_Reply_Key = "sparkWelcomeReply"
 )
 
 type SparkConfig struct {
@@ -34,7 +35,7 @@ func extractVersion(url string) string {
 }
 
 func GetSparkConfig() (cfg *SparkConfig, err error) {
-	var sparkUrl string = os.Getenv(Spark_Host_Url_Key)
+	var sparkUrl string = GetSparkHostUrl()
 	if sparkUrl == "" {
 		sparkUrl = "wss://spark-api.xf-yun.com/v3.5/chat"
 	}
@@ -56,9 +57,9 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 
 	cfg = &SparkConfig{
 		HostUrl:            sparkUrl,
-		AppId:              os.Getenv(Spark_App_Id_Key),
-		ApiSecret:          os.Getenv(Spark_App_Secret_Key),
-		ApiKey:             os.Getenv(Spark_ApiKey_Key),
+		AppId:              GetSparkAppId(),
+		ApiSecret:          GetSparkAppSecret(),
+		ApiKey:             GetSparApiKey(),
 		SparkDomainVersion: sparkDomainVersion,
 	}
 
@@ -84,4 +85,24 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 	}
 
 	return
+}
+
+func GetSparkHostUrl() string {
+	return os.Getenv(Spark_Host_Url_Key)
+}
+
+func GetSparkAppId() string {
+	return os.Getenv(Spark_App_Id_Key)
+}
+
+func GetSparkAppSecret() string {
+	return os.Getenv(Spark_App_Secret_Key)
+}
+
+func GetSparApiKey() string {
+	return os.Getenv(Spark_ApiKey_Key)
+}
+
+func GetSparkWelcomeReply() string {
+	return os.Getenv(Spark_Welcome_Reply_Key)
 }

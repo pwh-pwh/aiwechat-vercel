@@ -12,7 +12,10 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var ChatDbInstance ChatDb = nil
+var (
+	ChatDbInstance ChatDb        = nil
+	RedisClient    *redis.Client = nil
+)
 
 func init() {
 	db, err := GetChatDb()
@@ -45,6 +48,7 @@ func NewRedisChatDb(url string) (*RedisChatDb, error) {
 	}
 	options.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	client := redis.NewClient(options)
+	RedisClient = client
 	return &RedisChatDb{
 		client: client,
 	}, nil
@@ -83,4 +87,26 @@ func GetChatDb() (ChatDb, error) {
 		}
 		return db, nil
 	}
+}
+
+func GetValue(key string) (val string, err error) {
+	if RedisClient == nil {
+		return
+	}
+	val, err = RedisClient.Get(context.Background(), key).Result()
+
+	return
+}
+
+func SetValue(key string, val any, expires time.Duration) (err error) {
+	if RedisClient == nil {
+		return
+	}
+	if expires == 0 {
+		expires = time.Minute * 30
+	}
+
+	err = RedisClient.Set(context.Background(), key, val, expires).Err()
+
+	return
 }

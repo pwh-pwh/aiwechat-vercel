@@ -2,17 +2,31 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"slices"
 	"sync"
+
+	"github.com/pwh-pwh/aiwechat-vercel/db"
 )
 
 const (
 	GPT  = "gpt"
 	ECHO = "echo"
+
+	Bot_Type_Key    = "botType"
+	Bot_Type_Echo   = "echo"
+	Bot_Type_Gpt    = "gpt"
+	Bot_Type_Spark  = "spark"
+	Bot_Type_Qwen   = "qwen"
+	Bot_Type_Gemini = "gemini"
 )
 
-var Cache sync.Map
+var (
+	Cache sync.Map
+
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
+)
 
 func CheckBotConfig(botType string) (actualotType string, err error) {
 	if botType == "" {
@@ -62,8 +76,8 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 }
 
 func CheckGptConfig() error {
-	gptToken := os.Getenv("GPT_TOKEN")
-	token := os.Getenv("TOKEN")
+	gptToken := GetGptToken()
+	token := GetWxToken()
 	botType := GetBotType()
 	if token == "" {
 		return errors.New("请配置微信TOKEN")
@@ -75,30 +89,29 @@ func CheckGptConfig() error {
 }
 
 func CheckGeminiConfig() error {
-	key := os.Getenv("geminiKey")
+	key := GetGeminiKey()
 	if key == "" {
 		return errors.New("请配置geminiKey")
 	}
 	return nil
 }
 
-const (
-	Bot_Type_Echo   = "echo"
-	Bot_Type_Gpt    = "gpt"
-	Bot_Type_Spark  = "spark"
-	Bot_Type_Qwen   = "qwen"
-	Bot_Type_Gemini = "gemini"
-)
-
-var (
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
-)
-
 func GetBotType() string {
-	botType := os.Getenv("botType")
+	botType := os.Getenv(Bot_Type_Key)
 	if slices.Contains(Support_Bots, botType) {
 		return botType
 	} else {
 		return Bot_Type_Echo
 	}
+}
+
+func GetUserBotType(userId string) (bot string) {
+	bot, err := db.GetValue(fmt.Sprintf("%v:%v", Bot_Type_Key, userId))
+	if err != nil {
+		bot = GetBotType()
+	}
+	if !slices.Contains(Support_Bots, bot) {
+		bot = GetBotType()
+	}
+	return
 }

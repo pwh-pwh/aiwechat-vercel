@@ -1,20 +1,35 @@
 package chat
 
 import (
-	"github.com/google/generative-ai-go/genai"
-	"github.com/pwh-pwh/aiwechat-vercel/db"
-	"github.com/sashabaranov/go-openai"
+	"fmt"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/google/generative-ai-go/genai"
+
+	"github.com/pwh-pwh/aiwechat-vercel/db"
+	"github.com/sashabaranov/go-openai"
 
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
 var actionMap = map[string]func(param, userId string) string{
-	"/help": func(param, userId string) string {
-		return "/help 查看帮助\n"
+	config.Wx_Command_Help: func(param, userId string) string {
+		return config.GetWxHelpReply()
+	},
+	config.Wx_Command_Gpt: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Gpt)
+	},
+	config.Wx_Command_Spark: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Spark)
+	},
+	config.Wx_Command_Qwen: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Qwen)
+	},
+	config.Wx_Command_Gemini: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
 }
 
@@ -28,7 +43,7 @@ func DoAction(userId, msg string) (r string, flag bool) {
 }
 
 func isAction(msg string) (string, string, bool) {
-	for key, _ := range actionMap {
+	for key := range actionMap {
 		if strings.HasPrefix(msg, key) {
 			return msg[:len(key)], strings.TrimSpace(msg[len(key):]), true
 		}
@@ -53,17 +68,33 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			subText := os.Getenv("subscribe")
+			subText := config.GetWxSubscribeReply() + config.GetWxHelpReply()
 			if subText == "" {
 				subText = "哇，又有帅哥美女关注我啦😄"
 			}
 			return subText
+		} else if msg.Event == message.EventClick {
+			switch msg.EventKey {
+			case config.GetWxEventKeyChatGpt():
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Gpt)
+			case config.GetWxEventKeyChatSpark():
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Spark)
+			case config.GetWxEventKeyChatQwen():
+				return SwitchUserBot(string(msg.FromUserName), config.Bot_Type_Qwen)
+			default:
+				return fmt.Sprintf("unkown event key=%v", msg.EventKey)
+			}
 		} else {
 			return "不支持的类型"
 		}
 	default:
 		return "未支持的类型"
 	}
+}
+
+func SwitchUserBot(userId string, botType string) string {
+	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
+	return config.GetBotWelcomeReply(botType)
 }
 
 // 加入超时控制
@@ -118,14 +149,14 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:    os.Getenv("GPT_TOKEN"),
+			token:    config.GetGptToken(),
 			url:      url,
 			BaseChat: SimpleChat{},
 		}
 	case config.Bot_Type_Gemini:
 		return &GeminiChat{
 			BaseChat: SimpleChat{},
-			key:      os.Getenv("geminiKey"),
+			key:      config.GetGeminiKey(),
 		}
 	case config.Bot_Type_Spark:
 		config, _ := config.GetSparkConfig()
