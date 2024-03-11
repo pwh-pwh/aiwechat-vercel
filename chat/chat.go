@@ -201,7 +201,7 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 		isSupportPrompt := config.IsSupportPrompt(botType)
 		if isSupportPrompt {
 			prompt, err := db.GetPrompt(userId, botType)
-			if err != nil {
+			if err == nil {
 				list = append([]db.Msg{
 					{
 						Role: "system",
