@@ -85,6 +85,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
 2. 为啥有时候可以回复，有时候没有回复？答: 微信公众号限制答复500多字，超过回复会失败，可以增加限制字数的提示词解决。还有一个原因是答复太久，接口超时了免费版vercel的functions限制接口10s
 3. 域名需要备案吗?答:不需要，另外也可以在cloudflare托管域名(白嫖一些2级域名，托管上去，可以达到0成本)
+4. 我的是订阅号支持吗?答:无论是公众号还是订阅号,自动回复都是一个机制，所以都支持
 
 更多功能探讨[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions)
 
