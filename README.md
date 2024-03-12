@@ -39,6 +39,8 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 
 录制了一期简单的视频教程供参考[b站](https://b23.tv/BNWDKu1)
 
+也有大佬写了自己在cloudflare部署的教程[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions/22)
+
 ### 功能支持
 
 1. 支持接入gpt,星火,通义千问,gemini
