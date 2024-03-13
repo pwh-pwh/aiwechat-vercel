@@ -87,6 +87,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 3. 域名需要备案吗?答:不需要，另外也可以在cloudflare托管域名(白嫖一些2级域名，托管上去，可以达到0成本)
 4. 我的是订阅号支持吗?答:无论是公众号还是订阅号,自动回复都是一个机制，所以都支持
 5. 发送信息返回错误error, status code: 403, message: invalid character '<' looking for beginning of value怎么回事?答:检查GPT_URL是不是漏了/v1
+6. 支持接入deepseek吗?答:支持，不过有一点要注意deepseek支持的模型为deepseek-coder，deepseek-chat要正常使用，需要改gptModel为这两个模型之一
 
 更多功能探讨[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions)
 
