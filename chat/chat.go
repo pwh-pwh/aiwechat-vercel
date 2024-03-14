@@ -213,30 +213,29 @@ type ChatMsg interface {
 }
 
 func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db.Msg, f2 func(msg db.Msg) T) []T {
-	if db.ChatDbInstance != nil {
-		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
-		isSupportPrompt := config.IsSupportPrompt(botType)
-		if isSupportPrompt {
-			prompt, err := db.GetPrompt(userId, botType)
-			if err == nil {
-				list = append([]db.Msg{
-					{
-						Role: "system",
-						Msg:  prompt,
-					},
-				}, list...)
-			}
-		}
+	var dbList []db.Msg
+	isSupportPrompt := config.IsSupportPrompt(botType)
+	if isSupportPrompt {
+		prompt, err := db.GetPrompt(userId, botType)
 		if err == nil {
-			list = append(list, f(msg))
-			r := make([]T, 0)
-			for _, msg := range list {
-				r = append(r, f2(msg))
-			}
-			return r
+			dbList = append(dbList, db.Msg{
+				Role: "system",
+				Msg:  prompt,
+			})
 		}
 	}
-	return []T{msg}
+	if db.ChatDbInstance != nil {
+		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
+		if err == nil {
+			dbList = append(dbList, list...)
+		}
+	}
+	dbList = append(dbList, f(msg))
+	r := make([]T, 0)
+	for _, msg := range dbList {
+		r = append(r, f2(msg))
+	}
+	return r
 }
 
 func SaveMsgListWithDb[T ChatMsg](botType, userId string, msgList []T, f func(msg T) db.Msg) {
