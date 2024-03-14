@@ -125,7 +125,7 @@ func GetPrompt(param string, userId string) string {
 	botType := config.GetUserBotType(userId)
 	prompt, err := db.GetPrompt(userId, botType)
 	if err != nil {
-		return fmt.Sprintf("%s 获取prompt失败,原因:%e", botType, err)
+		return fmt.Sprintf("%s 当前未设置prompt", botType)
 	}
 	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
 }
