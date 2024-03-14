@@ -16,12 +16,14 @@ const (
 	Wx_Event_Key_Chat_Spark_key = "AI_CHAT_SPARK"
 	Wx_Event_Key_Chat_Qwen_key  = "AI_CHAT_QWEN"
 
-	Wx_Command_Help   = "/help"
-	Wx_Command_Gpt    = "/gpt"
-	Wx_Command_Spark  = "/spark"
-	Wx_Command_Qwen   = "/qwen"
-	Wx_Command_Gemini = "/gemini"
-	Wx_Command_Prompt = "/prompt"
+	Wx_Command_Help      = "/help"
+	Wx_Command_Gpt       = "/gpt"
+	Wx_Command_Spark     = "/spark"
+	Wx_Command_Qwen      = "/qwen"
+	Wx_Command_Gemini    = "/gemini"
+	Wx_Command_Prompt    = "/prompt"
+	Wx_Command_RmPrompt  = "/cpt"
+	Wx_Command_GetPrompt = "/getpt"
 )
 
 var (

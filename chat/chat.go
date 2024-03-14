@@ -31,7 +31,9 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
-	config.Wx_Command_Prompt: SetPrompt,
+	config.Wx_Command_Prompt:    SetPrompt,
+	config.Wx_Command_RmPrompt:  RmPrompt,
+	config.Wx_Command_GetPrompt: GetPrompt,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -111,6 +113,21 @@ func SetPrompt(param, userId string) string {
 		return fmt.Sprintf("%s 不支持设置system prompt", botType)
 	}
 	return fmt.Sprintf("%s 设置prompt成功", botType)
+}
+
+func RmPrompt(param string, userId string) string {
+	botType := config.GetUserBotType(userId)
+	db.RemovePrompt(userId, botType)
+	return fmt.Sprintf("%s 删除prompt成功", botType)
+}
+
+func GetPrompt(param string, userId string) string {
+	botType := config.GetUserBotType(userId)
+	prompt, err := db.GetPrompt(userId, botType)
+	if err != nil {
+		return fmt.Sprintf("%s 获取prompt失败,原因:%e", botType, err)
+	}
+	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
 }
 
 // 加入超时控制
