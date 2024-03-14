@@ -96,6 +96,9 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 }
 
 func SwitchUserBot(userId string, botType string) string {
+	if _, err := config.CheckBotConfig(botType); err != nil {
+		return err.Error()
+	}
 	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
 	return config.GetBotWelcomeReply(botType)
 }
