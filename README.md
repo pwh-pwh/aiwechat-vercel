@@ -60,13 +60,13 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 4. /qwen：切换与通义千问对话
 5. /gemini：切换与gemini对话
 6. /prompt: 你的prompt: 设置system prompt
+7. /getpt: 获取当前设置prompt
+8. /cpt: 清除当前设置prompt
 
 有其它想要支持的指令欢迎提issue或者pr (例如查看天气啥的)
 
 ### 后续计划添加指令
-1. /getpt: 获取当前设置prompt
-2. /cpt: 清除当前设置prompt
-3. /clear: 清除对话列表
+1. /clear: 清除对话列表
 
 ### 后续
 
