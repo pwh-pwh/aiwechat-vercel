@@ -20,7 +20,8 @@ import (
 
 type SparkChat struct {
 	BaseChat
-	Config *config.SparkConfig
+	Config    *config.SparkConfig
+	maxTokens int
 }
 
 type SparkResponse struct {
@@ -179,6 +180,9 @@ func toMsgList(msgList []SparkMessage) []db.Msg {
 
 // 生成参数
 func generateRequestBody(appid string, domain string, messages []SparkMessage) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+	if chat.maxTokens == 0 {
+		chat.maxTokens := 2048 	// 默认值，参数说明参考 https://www.xfyun.cn/doc/spark/Web.html
+	}
 	data := map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 		"header": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"app_id": appid, // 根据实际情况修改返回的数据结构和字段名
@@ -188,7 +192,7 @@ func generateRequestBody(appid string, domain string, messages []SparkMessage) m
 				"domain":      domain,       // 根据实际情况修改返回的数据结构和字段名
 				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
 				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
-				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名
+				"max_tokens":  int64(chat.maxTokens),  // 根据实际情况修改返回的数据结构和字段名
 				"auditing":    "default",    // 根据实际情况修改返回的数据结构和字段名
 			},
 		},
