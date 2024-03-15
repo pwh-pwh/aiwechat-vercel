@@ -15,8 +15,8 @@ const (
 
 type GeminiChat struct {
 	BaseChat
-	key        string
-	max_tokens int
+	key       string
+	maxTokens int
 }
 
 func (s *GeminiChat) toDbMsg(msg *genai.Content) db.Msg {

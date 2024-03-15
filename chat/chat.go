@@ -177,7 +177,7 @@ func GetChatBot(botType string) BaseChat {
 			errMsg: err.Error(),
 		}
 	}
-	maxTokens = config.GetMaxTokens()
+	maxTokens := config.GetMaxTokens()
 
 	switch botType {
 	case config.Bot_Type_Gpt:
