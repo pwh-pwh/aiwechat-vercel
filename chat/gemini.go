@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+
 	"github.com/google/generative-ai-go/genai"
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
@@ -31,6 +32,13 @@ func (s *GeminiChat) toChatMsg(msg db.Msg) *genai.Content {
 	return &genai.Content{Parts: []genai.Part{genai.Text(msg.Msg)}, Role: msg.Role}
 }
 
+func (s *GeminiChat) getModel(userID string) string {
+	if model, err := db.GetModel(userID, config.Bot_Type_Gemini); err == nil && model != "" {
+		return model
+	}
+	return "gemini-pro"
+}
+
 func (s *GeminiChat) chat(userId, msg string) string {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(s.key))
@@ -38,9 +46,9 @@ func (s *GeminiChat) chat(userId, msg string) string {
 		return err.Error()
 	}
 	defer client.Close()
-	model := client.GenerativeModel("gemini-pro")
+	model := client.GenerativeModel(s.getModel(userId))
 	if s.maxTokens > 0 {
-		model.SetMaxOutputTokens(int32(s.maxTokens))		// 参数设置方法参考：https://github.com/google/generative-ai-go
+		model.SetMaxOutputTokens(int32(s.maxTokens)) // 参数设置方法参考：https://github.com/google/generative-ai-go
 	}
 	// Initialize the chat
 	cs := model.StartChat()

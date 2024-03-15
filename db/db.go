@@ -22,6 +22,7 @@ var (
 const (
 	PROMPT_KEY = "prompt"
 	MSG_KEY    = "msg"
+	MODEL_KEY  = "model"
 )
 
 func init() {
@@ -158,4 +159,17 @@ func GetPrompt(userId, botType string) (string, error) {
 
 func RemovePrompt(userId, botType string) {
 	DeleteKey(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType))
+}
+
+func SetModel(userId, botType, model string) error {
+	if model == "" {
+		DeleteKey(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType))
+		return nil
+	} else {
+		return SetValue(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType), model, 0)
+	}
+}
+
+func GetModel(userId, botType string) (string, error) {
+	return GetValue(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType))
 }

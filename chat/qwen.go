@@ -75,6 +75,13 @@ func (chat *QwenChat) Chat(userId, message string) (res string) {
 	return WithTimeChat(userId, message, chat.chat)
 }
 
+func (chat *QwenChat) getModel(userID string) string {
+	if model, err := db.GetModel(userID, config.Bot_Type_Qwen); err == nil && model != "" {
+		return model
+	}
+	return chat.Config.ModelVersion
+}
+
 func (chat *QwenChat) chat(userId string, message string) (res string) {
 	var msgs = GetMsgListWithDb(config.Bot_Type_Qwen, userId, QwenMessage{
 		Role:    QwenChatUser,
@@ -82,7 +89,7 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 	}, chat.toDbMsg, chat.toChatMsg)
 
 	qwenReq := QwenRequest{
-		Model: chat.Config.ModelVersion,
+		Model: chat.getModel(userId),
 		Input: Input{Messages: msgs},
 	}
 	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置

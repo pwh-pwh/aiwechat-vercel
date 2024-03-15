@@ -31,9 +31,13 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
+
 	config.Wx_Command_Prompt:    SetPrompt,
 	config.Wx_Command_RmPrompt:  RmPrompt,
 	config.Wx_Command_GetPrompt: GetPrompt,
+
+	config.Wx_Command_SetModel: SetModel,
+	config.Wx_Command_GetModel: GetModel,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -133,6 +137,26 @@ func GetPrompt(param string, userId string) string {
 	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
 }
 
+func SetModel(param, userId string) string {
+	botType := config.GetUserBotType(userId)
+	if botType == config.Bot_Type_Gpt || botType == config.Bot_Type_Gemini || botType == config.Bot_Type_Qwen {
+		if err := db.SetModel(userId, botType, param); err != nil {
+			return fmt.Sprintf("%s 设置model失败", botType)
+		}
+		return fmt.Sprintf("%s 设置model成功", botType)
+	}
+	return fmt.Sprintf("%s 不支持设置model", botType)
+}
+
+func GetModel(param string, userId string) string {
+	botType := config.GetUserBotType(userId)
+	model, err := db.GetModel(userId, botType)
+	if err != nil || model == "" {
+		return fmt.Sprintf("%s 当前未设置model", botType)
+	}
+	return fmt.Sprintf("%s 获取model成功，model：%s", botType, model)
+}
+
 // 加入超时控制
 func WithTimeChat(userID, msg string, f func(userID, msg string) string) string {
 	if _, ok := config.Cache.Load(userID + msg); ok {
@@ -225,7 +249,7 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 	isSupportPrompt := config.IsSupportPrompt(botType)
 	if isSupportPrompt {
 		prompt, err := db.GetPrompt(userId, botType)
-		if err == nil {
+		if err == nil && prompt != "" {
 			dbList = append(dbList, db.Msg{
 				Role: "system",
 				Msg:  prompt,
