@@ -10,7 +10,7 @@ const (
 func GetGeminiWelcomeReply() (r string) {
 	r = os.Getenv(Gemini_Welcome_Reply_Key)
 	if r == "" {
-		r = "我是gemini，开始聊天吧！"
+		r = "我是Google的gemini，开始聊天吧！"
 	}
 	return
 }

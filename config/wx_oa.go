@@ -44,8 +44,10 @@ func GetWxSubscribeReply() string {
 func GetWxHelpReply() string {
 	helpMsg := os.Getenv(Wx_Help_Reply_key)
 	if helpMsg == "" {
-		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
-			"/prompt 你的prompt: 设置system prompt"
+		// helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
+		// 	"/prompt 你的prompt: 设置system prompt"
+		helpMsg = "欢迎加入AI行动小组\n现在可以直接问问题哟\n或者输入以下命令如果你需要帮助\n/help：查看帮助\n/gpt：与OpenAI's GPT对话\n/gemini：与Google's gemini对话\n" +
+			"/prompt 你的prompt: 设置system prompt (仅对OpenAI's GPT)"
 	}
 	return strings.ReplaceAll(helpMsg, "\\n", "\n")
 }
