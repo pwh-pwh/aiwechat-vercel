@@ -126,7 +126,7 @@ func GetMaxTokens() int {
 	maxTokensStr := os.Getenv("maxOutput")
 	maxTokens, err := strconv.Atoi(maxTokensStr)
 	if err != nil {
-		maxTokens := 0
+		return 0
 	}
 	return maxTokens
 }
