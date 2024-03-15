@@ -40,7 +40,7 @@ func (s *GeminiChat) chat(userId, msg string) string {
 	defer client.Close()
 	model := client.GenerativeModel("gemini-pro")
 	if s.maxTokens > 0 {
-		model.SetMaxOutputTokens(s.maxTokens)		// 参数设置方法参考：https://github.com/google/generative-ai-go
+		model.SetMaxOutputTokens(int32(s.maxTokens))		// 参数设置方法参考：https://github.com/google/generative-ai-go
 	}
 	// Initialize the chat
 	cs := model.StartChat()
