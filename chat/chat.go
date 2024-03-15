@@ -177,6 +177,7 @@ func GetChatBot(botType string) BaseChat {
 			errMsg: err.Error(),
 		}
 	}
+	maxTokens := config.GetMaxTokens()
 
 	switch botType {
 	case config.Bot_Type_Gpt:
@@ -185,26 +186,30 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:    config.GetGptToken(),
-			url:      url,
-			BaseChat: SimpleChat{},
+			token:      config.GetGptToken(),
+			url:        url,
+			maxTokens:  maxTokens,
+			BaseChat:   SimpleChat{},
 		}
 	case config.Bot_Type_Gemini:
 		return &GeminiChat{
-			BaseChat: SimpleChat{},
-			key:      config.GetGeminiKey(),
+			BaseChat:  SimpleChat{},
+			key:       config.GetGeminiKey(),
+			maxTokens: maxTokens,
 		}
 	case config.Bot_Type_Spark:
 		config, _ := config.GetSparkConfig()
 		return &SparkChat{
-			BaseChat: SimpleChat{},
-			Config:   config,
+			BaseChat:  SimpleChat{},
+			Config:    config,
+			maxTokens: maxTokens,
 		}
 	case config.Bot_Type_Qwen:
 		config, _ := config.GetQwenConfig()
 		return &QwenChat{
-			BaseChat: SimpleChat{},
-			Config:   config,
+			BaseChat:  SimpleChat{},
+			Config:    config,
+			maxTokens: maxTokens,
 		}
 	default:
 		return &Echo{}

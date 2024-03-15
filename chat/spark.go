@@ -20,7 +20,8 @@ import (
 
 type SparkChat struct {
 	BaseChat
-	Config *config.SparkConfig
+	Config    *config.SparkConfig
+	maxTokens int
 }
 
 type SparkResponse struct {
@@ -89,7 +90,7 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 	}, chat.toDbMsg, chat.toChatMsg)
 
 	go func() {
-		data := generateRequestBody(chat.Config.AppId, chat.Config.SparkDomainVersion, msgs)
+		data := generateRequestBody(chat.Config.AppId, chat.Config.SparkDomainVersion, msgs, chat.maxTokens)
 		conn.WriteJSON(data)
 	}()
 
@@ -178,7 +179,10 @@ func toMsgList(msgList []SparkMessage) []db.Msg {
 }
 
 // 生成参数
-func generateRequestBody(appid string, domain string, messages []SparkMessage) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+func generateRequestBody(appid string, domain string, messages []SparkMessage, maxTokens int) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+	if maxTokens == 0 {
+		maxTokens = 2048 	// 默认值，参数说明参考 https://www.xfyun.cn/doc/spark/Web.html
+	}
 	data := map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 		"header": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"app_id": appid, // 根据实际情况修改返回的数据结构和字段名
@@ -188,7 +192,7 @@ func generateRequestBody(appid string, domain string, messages []SparkMessage) m
 				"domain":      domain,       // 根据实际情况修改返回的数据结构和字段名
 				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
 				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
-				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名
+				"max_tokens":  int64(maxTokens),  // 根据实际情况修改返回的数据结构和字段名
 				"auditing":    "default",    // 根据实际情况修改返回的数据结构和字段名
 			},
 		},

@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"sync"
+	"strconv"
 
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 )
@@ -118,4 +119,14 @@ func GetUserBotType(userId string) (bot string) {
 		bot = GetBotType()
 	}
 	return
+}
+
+func GetMaxTokens() int {
+	// 不设置或者设置不合法，均返回0，模型将使用默认值或者不设置
+	maxTokensStr := os.Getenv("maxOutput")
+	maxTokens, err := strconv.Atoi(maxTokensStr)
+	if err != nil {
+		return 0
+	}
+	return maxTokens
 }

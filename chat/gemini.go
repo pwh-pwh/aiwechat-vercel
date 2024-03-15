@@ -15,7 +15,8 @@ const (
 
 type GeminiChat struct {
 	BaseChat
-	key string
+	key       string
+	maxTokens int
 }
 
 func (s *GeminiChat) toDbMsg(msg *genai.Content) db.Msg {
@@ -38,6 +39,9 @@ func (s *GeminiChat) chat(userId, msg string) string {
 	}
 	defer client.Close()
 	model := client.GenerativeModel("gemini-pro")
+	if s.maxTokens > 0 {
+		model.SetMaxOutputTokens(int32(s.maxTokens))		// 参数设置方法参考：https://github.com/google/generative-ai-go
+	}
 	// Initialize the chat
 	cs := model.StartChat()
 	var msgs = GetMsgListWithDb(config.Bot_Type_Gemini, userId, &genai.Content{

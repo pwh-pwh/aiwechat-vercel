@@ -10,8 +10,9 @@ import (
 )
 
 type SimpleGptChat struct {
-	token string
-	url   string
+	token     string
+	url       string
+	maxTokens int
 	BaseChat
 }
 
@@ -43,11 +44,15 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	client := openai.NewClientWithConfig(cfg)
 
 	var msgs = GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
-	resp, err := client.CreateChatCompletion(context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    s.getModel(),
-			Messages: msgs,
-		})
+	req := openai.ChatCompletionRequest{
+		Model:    s.getModel(),
+		Messages: msgs,
+	}
+	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
+	if s.maxTokens > 0 {
+		req.MaxTokens = s.maxTokens   // 参数名称参考：https://github.com/sashabaranov/go-openai
+	}
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		return err.Error()
 	}
