@@ -11,7 +11,7 @@ import (
 func Chat(rw http.ResponseWriter, req *http.Request) {
 	accessCode := os.Getenv("accessCode")
 	code := req.URL.Query().Get("code")
-	if code == accessCode {
+	if code != accessCode {
 		fmt.Fprint(rw, "No valid query code provided.")
 		return
 	}
