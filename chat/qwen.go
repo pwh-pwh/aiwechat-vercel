@@ -97,6 +97,8 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 		qwenReq.Parameters.MaxTokens = chat.maxTokens // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 	}
 	qwenReq.Parameters.TopP = 0.8; // 通义千问要求top_p ∈ (0,1)
+	qwenReq.Parameters.RepetitionPenalty = 1.1; // 用于控制模型生成时的重复度，需要大于0。提高repetition_penalty时可以降低模型生成的重复度。1.0表示不做惩罚。默认为1.1。
+	qwenReq.Parameters.Temperature = 0.85; // 取值范围：[0, 2)，系统默认值0.85。不建议取值为0，无意义。
 
 	body, _ := sonic.Marshal(qwenReq)
 	req, err := http.NewRequest("POST", chat.Config.HostUrl, bytes.NewReader(body))
