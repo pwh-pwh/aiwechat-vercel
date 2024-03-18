@@ -38,6 +38,7 @@ var actionMap = map[string]func(param, userId string) string{
 
 	config.Wx_Command_SetModel: SetModel,
 	config.Wx_Command_GetModel: GetModel,
+	config.Wx_Command_Clear:    ClearMsg,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -155,6 +156,12 @@ func GetModel(param string, userId string) string {
 		return fmt.Sprintf("%s 当前未设置model", botType)
 	}
 	return fmt.Sprintf("%s 获取model成功，model：%s", botType, model)
+}
+
+func ClearMsg(param string, userId string) string {
+	botType := config.GetUserBotType(userId)
+	db.DeleteMsgList(botType, userId)
+	return fmt.Sprintf("%s 清除消息成功", botType)
 }
 
 // 加入超时控制

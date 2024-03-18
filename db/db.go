@@ -149,6 +149,10 @@ func DeleteKey(key string) {
 	RedisClient.Del(context.Background(), key)
 }
 
+func DeleteMsgList(botType string, userId string) {
+	RedisClient.Del(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId))
+}
+
 func SetPrompt(userId, botType, prompt string) {
 	SetValue(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType), prompt, 0)
 }
