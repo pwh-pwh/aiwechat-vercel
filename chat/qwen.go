@@ -96,6 +96,7 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 	if chat.maxTokens > 0 {
 		qwenReq.Parameters.MaxTokens = chat.maxTokens // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 	}
+	qwenReq.Parameters.TopP = 0.8; // 通义千问要求top_p ∈ (0,1)
 
 	body, _ := sonic.Marshal(qwenReq)
 	req, err := http.NewRequest("POST", chat.Config.HostUrl, bytes.NewReader(body))
