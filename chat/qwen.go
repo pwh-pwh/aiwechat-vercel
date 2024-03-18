@@ -18,13 +18,13 @@ const (
 
 type QwenChat struct {
 	BaseChat
-	Config *config.QwenConfig
+	Config    *config.QwenConfig
 	maxTokens int
 }
 
 type QwenRequest struct {
-	Model string `json:"model"`
-	Input Input  `json:"input"`
+	Model      string     `json:"model"`
+	Input      Input      `json:"input"`
 	Parameters Parameters `json:"parameters"`
 }
 
@@ -33,17 +33,17 @@ type Input struct {
 }
 
 type Parameters struct {
-	result_format      string   `json:"result_format"`
-	seed               int      `json:"seed"`
-	max_tokens         int      `json:"max_tokens"`
-	top_p              float64  `json:"top_p"`
-	top_k              float64  `json:"top_k"`
-	repetition_penalty float64  `json:"repetition_penalty"`
-	temperature        float64  `json:"temperature"`
-	stop               string   `json:"stop"`
-	enable_search      bool     `json:"enable_search"`
-	incremental_output bool     `json:"incremental_output"`
-	tools              []string `json:"tools"`
+	ResultFormat      string   `json:"result_format"`
+	Seed              int      `json:"seed"`
+	MaxTokens         int      `json:"max_tokens"`
+	TopP              float64  `json:"top_p"`
+	TopK              float64  `json:"top_k"`
+	RepetitionPenalty float64  `json:"repetition_penalty"`
+	Temperature       float64  `json:"temperature"`
+	Stop              string   `json:"stop"`
+	EnableSearch      bool     `json:"enable_search"`
+	IncrementalOutput bool     `json:"incremental_output"`
+	Tools             []string `json:"tools"`
 }
 
 type QwenMessage struct {
@@ -94,7 +94,7 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 	}
 	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
 	if chat.maxTokens > 0 {
-		qwenReq.Parameters.max_tokens = chat.maxTokens   // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
+		qwenReq.Parameters.MaxTokens = chat.maxTokens // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 	}
 
 	body, _ := sonic.Marshal(qwenReq)
