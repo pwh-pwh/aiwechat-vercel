@@ -65,11 +65,12 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 9. /setmodel model_name:设置当前bot使用的模型
 10. /setmodel:重置当前bot的模型为默认值
 11. /getmodel:获取当前bot自定义的模型名
+12. /clear:清除对话列表
 
 有其它想要支持的指令欢迎提issue或者pr (例如查看天气啥的)
 
 ### 后续计划添加指令
-1. /clear: 清除对话列表
+待定
 
 ### 后续
 
