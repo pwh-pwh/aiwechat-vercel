@@ -31,13 +31,9 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
-
 	config.Wx_Command_Prompt:    SetPrompt,
 	config.Wx_Command_RmPrompt:  RmPrompt,
 	config.Wx_Command_GetPrompt: GetPrompt,
-
-	config.Wx_Command_SetModel: SetModel,
-	config.Wx_Command_GetModel: GetModel,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -100,9 +96,6 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 }
 
 func SwitchUserBot(userId string, botType string) string {
-	if _, err := config.CheckBotConfig(botType); err != nil {
-		return err.Error()
-	}
 	db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
 	return config.GetBotWelcomeReply(botType)
 }
@@ -135,26 +128,6 @@ func GetPrompt(param string, userId string) string {
 		return fmt.Sprintf("%s 当前未设置prompt", botType)
 	}
 	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
-}
-
-func SetModel(param, userId string) string {
-	botType := config.GetUserBotType(userId)
-	if botType == config.Bot_Type_Gpt || botType == config.Bot_Type_Gemini || botType == config.Bot_Type_Qwen {
-		if err := db.SetModel(userId, botType, param); err != nil {
-			return fmt.Sprintf("%s 设置model失败", botType)
-		}
-		return fmt.Sprintf("%s 设置model成功", botType)
-	}
-	return fmt.Sprintf("%s 不支持设置model", botType)
-}
-
-func GetModel(param string, userId string) string {
-	botType := config.GetUserBotType(userId)
-	model, err := db.GetModel(userId, botType)
-	if err != nil || model == "" {
-		return fmt.Sprintf("%s 当前未设置model", botType)
-	}
-	return fmt.Sprintf("%s 获取model成功，model：%s", botType, model)
 }
 
 // 加入超时控制
@@ -201,7 +174,6 @@ func GetChatBot(botType string) BaseChat {
 			errMsg: err.Error(),
 		}
 	}
-	maxTokens := config.GetMaxTokens()
 
 	switch botType {
 	case config.Bot_Type_Gpt:
@@ -210,30 +182,26 @@ func GetChatBot(botType string) BaseChat {
 			url = "https://api.openai.com/v1/"
 		}
 		return &SimpleGptChat{
-			token:      config.GetGptToken(),
-			url:        url,
-			maxTokens:  maxTokens,
-			BaseChat:   SimpleChat{},
+			token:    config.GetGptToken(),
+			url:      url,
+			BaseChat: SimpleChat{},
 		}
 	case config.Bot_Type_Gemini:
 		return &GeminiChat{
-			BaseChat:  SimpleChat{},
-			key:       config.GetGeminiKey(),
-			maxTokens: maxTokens,
+			BaseChat: SimpleChat{},
+			key:      config.GetGeminiKey(),
 		}
 	case config.Bot_Type_Spark:
 		config, _ := config.GetSparkConfig()
 		return &SparkChat{
-			BaseChat:  SimpleChat{},
-			Config:    config,
-			maxTokens: maxTokens,
+			BaseChat: SimpleChat{},
+			Config:   config,
 		}
 	case config.Bot_Type_Qwen:
 		config, _ := config.GetQwenConfig()
 		return &QwenChat{
-			BaseChat:  SimpleChat{},
-			Config:    config,
-			maxTokens: maxTokens,
+			BaseChat: SimpleChat{},
+			Config:   config,
 		}
 	default:
 		return &Echo{}
@@ -249,7 +217,7 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 	isSupportPrompt := config.IsSupportPrompt(botType)
 	if isSupportPrompt {
 		prompt, err := db.GetPrompt(userId, botType)
-		if err == nil && prompt != "" {
+		if err == nil {
 			dbList = append(dbList, db.Msg{
 				Role: "system",
 				Msg:  prompt,
@@ -259,6 +227,12 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 	if db.ChatDbInstance != nil {
 		list, err := db.ChatDbInstance.GetMsgList(botType, userId)
 		if err == nil {
+			// check is contain system prompt
+			if len(list) > 0 {
+				if list[0].Role == "system" {
+					list = list[1:]
+				}
+			}
 			dbList = append(dbList, list...)
 		}
 	}
