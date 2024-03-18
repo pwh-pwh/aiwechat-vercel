@@ -89,7 +89,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 2. 为啥有时候可以回复，有时候没有回复？答: 微信公众号限制答复500多字，超过回复会失败，可以增加限制字数的提示词解决。还有一个原因是答复太久，接口超时了免费版vercel的functions限制接口10s
 3. 域名需要备案吗?答:不需要，另外也可以在cloudflare托管域名(白嫖一些2级域名，托管上去，可以达到0成本)
 4. 我的是订阅号支持吗?答:无论是公众号还是订阅号,自动回复都是一个机制，所以都支持
-5. 发送信息返回错误error, status code: 403, message: invalid character '<' looking for beginning of value怎么回事?答:检查GPT_URL是不是漏了/v1
+5. 发送信息返回错误error, status code: 403, message: invalid character '<' looking for beginning of value怎么回事?答:检查GPT_URL是不是漏了/v1或者cf开了盾，墙之类的
 6. 支持接入deepseek吗?答:支持，不过有一点要注意deepseek支持的模型为deepseek-coder，deepseek-chat要正常使用，需要改gptModel为这两个模型之一
 7. 修改环境变量后，还是不成功?答:在修改环境变量后要重新部署下配置才后生效，因为vercel原来的实例没有被销毁读取的还是未修改的环境变量。建议每次修改环境变量后手动重新部署一下
 8. 微信字数限制如何解决?答:已经有大佬提pr了，可以通过设置最大token解决，设置环境变量maxOutput即可，一般设置到500，回答没有完整可以和ai说继续即可，pr详情[pr](https://github.com/pwh-pwh/aiwechat-vercel/pull/36)
