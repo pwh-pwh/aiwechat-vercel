@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -81,7 +82,13 @@ func (r *RedisChatDb) SetMsgList(botType string, userId string, msgList []Msg) {
 		fmt.Println(err)
 		return
 	}
-	r.client.Set(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId), res, time.Minute*30)
+	msgTime := os.Getenv("MSG_TIME")
+	//转换为数字
+	msgT, err := strconv.Atoi(msgTime)
+	if err != nil || msgT <= 0 {
+		msgT = 30
+	}
+	r.client.Set(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId), res, time.Minute*time.Duration(msgT))
 }
 
 func GetChatDb() (ChatDb, error) {
