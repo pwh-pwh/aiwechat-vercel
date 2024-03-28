@@ -70,7 +70,9 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 有其它想要支持的指令欢迎提issue或者pr (例如查看天气啥的)
 
 ### 后续计划添加指令
-待定
+1. /fy: 翻译文本
+2. /wec: 查看天气
+3. todolist管理： /ta: 添加待办事项 /td: 删除待办事项 /tl: 查看待办事项列表
 
 ### 后续
 
