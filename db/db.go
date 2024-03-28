@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -24,6 +25,7 @@ const (
 	PROMPT_KEY = "prompt"
 	MSG_KEY    = "msg"
 	MODEL_KEY  = "model"
+	TODO_KEY   = "todo"
 )
 
 func init() {
@@ -170,6 +172,45 @@ func GetPrompt(userId, botType string) (string, error) {
 
 func RemovePrompt(userId, botType string) {
 	DeleteKey(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType))
+}
+
+// todolist format: "todo1|todo2|todo3"
+func GetTodoList(userId string) (string, error) {
+	tListStr, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil {
+		return "", err
+	}
+	if tListStr == "" {
+		return "todolist为空", nil
+	}
+	split := strings.Split(tListStr, "|")
+	var sb strings.Builder
+	for index, todo := range split {
+		sb.WriteString(fmt.Sprintf("%d. %s\n", index+1, todo))
+	}
+	return sb.String(), nil
+}
+
+func AddTodoList(userId string, todo string) error {
+	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil {
+		return err
+	}
+	if todoList == "" {
+		todoList = todo
+	} else {
+		todoList = fmt.Sprintf("%s|%s", todoList, todo)
+	}
+	return SetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId), todoList, 0)
+}
+
+func DelTodoList(userId string, todoIndex int) error {
+	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil {
+		return err
+	}
+	todoList = strings.Split(todoList, "|")[todoIndex-1]
+	return SetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId), todoList, 0)
 }
 
 func SetModel(userId, botType, model string) error {
