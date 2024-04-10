@@ -1,8 +1,10 @@
 package chat
 
 import (
+	_ "errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -39,6 +41,10 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_SetModel: SetModel,
 	config.Wx_Command_GetModel: GetModel,
 	config.Wx_Command_Clear:    ClearMsg,
+
+	config.Wx_Todo_List: GetTodoList,
+	config.Wx_Todo_Add:  AddTodo,
+	config.Wx_Todo_Del:  DelTodo,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -136,6 +142,34 @@ func GetPrompt(param string, userId string) string {
 		return fmt.Sprintf("%s 当前未设置prompt", botType)
 	}
 	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
+}
+
+func GetTodoList(param string, userId string) string {
+	list, err := db.GetTodoList(userId)
+	if err != nil {
+		return err.Error()
+	}
+	return list
+}
+
+func AddTodo(param, userId string) string {
+	err := db.AddTodoList(userId, param)
+	if err != nil {
+		return err.Error()
+	}
+	return "添加成功"
+}
+
+func DelTodo(param, userId string) string {
+	index, err := strconv.Atoi(param)
+	if err != nil {
+		return "传入索引必须为数字"
+	}
+	err = db.DelTodoList(userId, index)
+	if err != nil {
+		return err.Error()
+	}
+	return "删除todo成功"
 }
 
 func SetModel(param, userId string) string {

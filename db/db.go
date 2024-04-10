@@ -194,7 +194,7 @@ func GetTodoList(userId string) (string, error) {
 func AddTodoList(userId string, todo string) error {
 	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
 	if err != nil {
-		return err
+		todoList = ""
 	}
 	if todoList == "" {
 		todoList = todo
