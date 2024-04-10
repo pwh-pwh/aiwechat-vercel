@@ -27,6 +27,10 @@ const (
 	Wx_Command_SetModel  = "/setmodel"
 	Wx_Command_GetModel  = "/getmodel"
 	Wx_Command_Clear     = "/clear"
+
+	Wx_Todo_Add  = "/ta"
+	Wx_Todo_Del  = "/td"
+	Wx_Todo_List = "/tl"
 )
 
 var (
