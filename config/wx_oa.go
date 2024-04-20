@@ -53,7 +53,7 @@ func GetWxSubscribeReply() string {
 func GetWxHelpReply() string {
 	helpMsg := os.Getenv(Wx_Help_Reply_key)
 	if helpMsg == "" {
-		helpMsg = "感谢关注！更多ChatGPT网站请访问：https://yyyy.gay/article/34\n由于微信有字数限制，回答没有完整可以和ai说继续即可\n输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
+		helpMsg = "感谢关注！更多ChatGPT网站请访问：https://yyyy.gay/article/34\n\n注：因公众号限制每次回复字数限制在500字左右，回答没有完整可以和ai说继续即可\n输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/qwen：与通义千问对话\n" +
 			"/prompt 你的prompt: 设置system prompt\n/getpt: 获取当前设置prompt\n/cpt: 清除当前设置prompt\n" +
 			"/setmodel model: 设置自定义model\n/setmodel: 重置model为默认值\n/getmodel: 获取当前model\n" +
 			"/clear:清除历史对话\n" + "/ta 代办事项1:设置todo\n" + "/tl:获取代办列表\n" + "/td 2:删除索引代办事件"
