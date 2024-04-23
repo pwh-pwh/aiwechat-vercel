@@ -177,7 +177,7 @@ func RemovePrompt(userId, botType string) {
 // todolist format: "todo1|todo2|todo3"
 func GetTodoList(userId string) (string, error) {
 	tListStr, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
-	if err != nil && RedisClient != nil {
+	if err != nil && RedisClient == nil {
 		return "", err
 	}
 	if tListStr == "" {
@@ -193,7 +193,7 @@ func GetTodoList(userId string) (string, error) {
 
 func AddTodoList(userId string, todo string) error {
 	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
-	if err != nil && RedisClient != nil {
+	if err != nil && RedisClient == nil {
 		return err
 	}
 	if todoList == "" {
@@ -206,7 +206,7 @@ func AddTodoList(userId string, todo string) error {
 
 func DelTodoList(userId string, todoIndex int) error {
 	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
-	if err != nil && RedisClient != nil {
+	if err != nil && RedisClient == nil {
 		return err
 	}
 	todoList = strings.Split(todoList, "|")[todoIndex-1]
