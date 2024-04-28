@@ -3,6 +3,7 @@ package chat
 import (
 	_ "errors"
 	"fmt"
+	"github.com/pwh-pwh/aiwechat-vercel/client"
 	"os"
 	"strconv"
 	"strings"
@@ -45,6 +46,8 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Todo_List: GetTodoList,
 	config.Wx_Todo_Add:  AddTodo,
 	config.Wx_Todo_Del:  DelTodo,
+
+	config.Wx_Coin: GetCoin,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -170,6 +173,14 @@ func DelTodo(param, userId string) string {
 		return err.Error()
 	}
 	return "删除todo成功"
+}
+
+func GetCoin(param, userId string) string {
+	coinPrice, err := client.GetCoinPrice(param)
+	if err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("代币对:%s 价格:%s", coinPrice.Symbol, coinPrice.Price)
 }
 
 func SetModel(param, userId string) string {
