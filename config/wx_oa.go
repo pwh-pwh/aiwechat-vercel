@@ -58,7 +58,7 @@ func GetWxHelpReply() string {
 		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
 			"/prompt 你的prompt: 设置system prompt\n/getpt: 获取当前设置prompt\n/cpt: 清除当前设置prompt\n" +
 			"/setmodel model: 设置自定义model\n/setmodel: 重置model为默认值\n/getmodel: 获取当前model\n" +
-			"/clear:清除历史对话\n" + "/ta 代办事项1:设置todo\n" + "/tl:获取代办列表\n" + "/td 2:删除索引代办事件"
+			"/clear:清除历史对话\n" + "/ta 代办事项1:设置todo\n" + "/tl:获取代办列表\n" + "/td 2:删除索引代办事件\n" + "/cb 代币对:查询价格"
 	}
 	return strings.ReplaceAll(helpMsg, "\\n", "\n")
 }
