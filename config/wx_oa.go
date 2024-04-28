@@ -31,6 +31,8 @@ const (
 	Wx_Todo_Add  = "/ta"
 	Wx_Todo_Del  = "/td"
 	Wx_Todo_List = "/tl"
+
+	Wx_Coin = "/cb"
 )
 
 var (
