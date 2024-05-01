@@ -7,10 +7,13 @@
 
 ### 快速开始
 
-提前到vercel的dashboard的Storage创建redis数据库
+- 提前到Vercel创建Redis数据库
+  - Dashboard--Storage--Create--KV Redis
+![image](https://github.com/pwh-pwh/aiwechat-vercel/assets/24500520/523f9aec-faaf-415a-8cb9-520041a06d58)
 
-fork本项目，到vercel点击构建,环境变量填写参数，在vercel该项目详情页面的Storage选择连接前面创建的redis数据库
-,成功后vercel会自动配置KV_URL环境变量
+- Fork本Github项目，到Vercel点击构建,环境变量填写参数
+- 在vercel该项目详情页面的Storage选择连接前面创建的redis数据库
+  - 数据库链接成功后，Vercel会自动配置KV_URL环境变量
 
 #### 数据库配置详情
 
