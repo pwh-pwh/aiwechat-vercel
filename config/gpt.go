@@ -10,7 +10,7 @@ const (
 func GetGptWelcomeReply() (r string) {
 	r = os.Getenv(Gpt_Welcome_Reply_Key)
 	if r == "" {
-		r = "我是OpenAI的gpt，开始聊天吧！"
+		r = "我是OpenAI的Chatgpt，开始聊天吧！"
 	}
 	return
 }

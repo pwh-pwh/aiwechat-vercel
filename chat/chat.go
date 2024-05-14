@@ -5,6 +5,10 @@ import (
 	"os"
 	"strings"
 	"time"
+	"bytes"
+	"io"
+	"mime/multipart"
+    "net/http"
 
 	"github.com/google/generative-ai-go/genai"
 
@@ -88,9 +92,62 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		} else {
 			return "不支持的类型"
 		}
+	case message.MsgTypeVoice:
+		voiceURL := msg.voiceURL
+		text, err = ConvertVoiceToText(voiceURL)
+		if err != nil {
+			return "Sorry, I couldn't understand that voice message."
+		}
+		return s.Chat(userID, text)
 	default:
 		return "未支持的类型"
 	}
+}
+
+func ConvertVoiceToText(voiceURL string) (string, error) {
+	// Open the file
+    file, err := os.Open(filePath)
+    if err != nil {
+        return "", err
+    }
+    defer file.Close()
+
+	// Prepare the multipart request
+    body := &bytes.Buffer{}
+    writer := multipart.NewWriter(body)
+    part, err := writer.CreateFormFile("file", filePath)
+    if err != nil {
+        return "", err
+    }
+    _, err = io.Copy(part, file)
+    if err != nil {
+        return "", err
+    }
+    writer.Close()
+
+	// Create the HTTP request
+    req, err := http.NewRequest("POST", "https://api.openai.com/v1/audio/transcriptions", body)
+    if err != nil {
+        return "", err
+    }
+    req.Header.Set("Authorization", "Bearer "+config.GetGptToken())
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+    // Add any necessary headers here, such as Authorization
+
+    // Send the request
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return "", err
+    }
+
+	return string(respBody), nil
 }
 
 func SwitchUserBot(userId string, botType string) string {
