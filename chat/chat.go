@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 	"time"
-	"bytes"
-	"io"
-	"mime/multipart"
-    "net/http"
+	// "bytes"
+	// "io"
+	// "mime/multipart"
+    // "net/http"
 
 	"github.com/google/generative-ai-go/genai"
 
