@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,6 +19,13 @@ var (
 	ChatDbInstance ChatDb        = nil
 	RedisClient    *redis.Client = nil
 	Cache          sync.Map
+)
+
+const (
+	PROMPT_KEY = "prompt"
+	MSG_KEY    = "msg"
+	MODEL_KEY  = "model"
+	TODO_KEY   = "todo"
 )
 
 func init() {
@@ -57,7 +66,7 @@ func NewRedisChatDb(url string) (*RedisChatDb, error) {
 }
 
 func (r *RedisChatDb) GetMsgList(botType string, userId string) ([]Msg, error) {
-	result, err := r.client.Get(context.Background(), fmt.Sprintf("%v:%v", botType, userId)).Result()
+	result, err := r.client.Get(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +84,13 @@ func (r *RedisChatDb) SetMsgList(botType string, userId string, msgList []Msg) {
 		fmt.Println(err)
 		return
 	}
-	r.client.Set(context.Background(), fmt.Sprintf("%v:%v", botType, userId), res, time.Minute*30)
+	msgTime := os.Getenv("MSG_TIME")
+	//转换为数字
+	msgT, err := strconv.Atoi(msgTime)
+	if err != nil || msgT <= 0 {
+		msgT = 30
+	}
+	r.client.Set(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId), res, time.Minute*time.Duration(msgT))
 }
 
 func GetChatDb() (ChatDb, error) {
@@ -91,7 +106,7 @@ func GetChatDb() (ChatDb, error) {
 	}
 }
 
-func GetValueWithMemory(key any) (string, bool) {
+func GetValueWithMemory(key string) (string, bool) {
 	value, ok := Cache.Load(key)
 	if ok {
 		return value.(string), ok
@@ -99,8 +114,12 @@ func GetValueWithMemory(key any) (string, bool) {
 	return "", false
 }
 
-func SetValueWithMemory(key, val any) {
+func SetValueWithMemory(key string, val any) {
 	Cache.Store(key, val)
+}
+
+func DeleteKeyWithMemory(key string) {
+	Cache.Delete(key)
 }
 
 func GetValue(key string) (val string, err error) {
@@ -131,10 +150,78 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	return
 }
 
+func DeleteKey(key string) {
+	DeleteKeyWithMemory(key)
+	if RedisClient == nil {
+		return
+	}
+	RedisClient.Del(context.Background(), key)
+}
+
+func DeleteMsgList(botType string, userId string) {
+	RedisClient.Del(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId))
+}
+
 func SetPrompt(userId, botType, prompt string) {
-	SetValue(fmt.Sprintf("%s:%s", userId, botType), prompt, 0)
+	SetValue(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType), prompt, 0)
 }
 
 func GetPrompt(userId, botType string) (string, error) {
-	return GetValue(fmt.Sprintf("%s:%s", userId, botType))
+	return GetValue(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType))
+}
+
+func RemovePrompt(userId, botType string) {
+	DeleteKey(fmt.Sprintf("%s:%s:%s", PROMPT_KEY, userId, botType))
+}
+
+// todolist format: "todo1|todo2|todo3"
+func GetTodoList(userId string) (string, error) {
+	tListStr, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil && RedisClient == nil {
+		return "", err
+	}
+	if tListStr == "" {
+		return "todolist为空", nil
+	}
+	split := strings.Split(tListStr, "|")
+	var sb strings.Builder
+	for index, todo := range split {
+		sb.WriteString(fmt.Sprintf("%d. %s\n", index+1, todo))
+	}
+	return sb.String(), nil
+}
+
+func AddTodoList(userId string, todo string) error {
+	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil && RedisClient == nil {
+		return err
+	}
+	if todoList == "" {
+		todoList = todo
+	} else {
+		todoList = fmt.Sprintf("%s|%s", todoList, todo)
+	}
+	return SetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId), todoList, 0)
+}
+
+func DelTodoList(userId string, todoIndex int) error {
+	todoList, err := GetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId))
+	if err != nil && RedisClient == nil {
+		return err
+	}
+	todoList = strings.Split(todoList, "|")[todoIndex-1]
+	return SetValue(fmt.Sprintf("%s:%s", TODO_KEY, userId), todoList, 0)
+}
+
+func SetModel(userId, botType, model string) error {
+	if model == "" {
+		DeleteKey(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType))
+		return nil
+	} else {
+		return SetValue(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType), model, 0)
+	}
+}
+
+func GetModel(userId, botType string) (string, error) {
+	return GetValue(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType))
 }

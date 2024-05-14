@@ -1,6 +1,7 @@
 package api
 
 import (
+	"os"
 	"fmt"
 	"github.com/pwh-pwh/aiwechat-vercel/chat"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -8,6 +9,13 @@ import (
 )
 
 func Chat(rw http.ResponseWriter, req *http.Request) {
+	accessCode := os.Getenv("accessCode")
+	code := req.URL.Query().Get("code")
+	if code != accessCode {
+		fmt.Fprint(rw, "No valid query code provided.")
+		return
+	}
+
 	msg := req.URL.Query().Get("msg")
 	botType := req.URL.Query().Get("botType")
 	if msg == "" {

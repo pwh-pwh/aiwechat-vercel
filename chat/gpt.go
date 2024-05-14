@@ -3,15 +3,17 @@ package chat
 import (
 	"context"
 
+	"os"
+
 	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
-	"os"
 )
 
 type SimpleGptChat struct {
-	token string
-	url   string
+	token     string
+	url       string
+	maxTokens int
 	BaseChat
 }
 
@@ -29,13 +31,15 @@ func (s *SimpleGptChat) toChatMsg(msg db.Msg) openai.ChatCompletionMessage {
 	}
 }
 
-func (s *SimpleGptChat) getModel() string {
-	model := os.Getenv("gptModel")
-	if model == "" {
-		// model = "gpt-3.5-turbo"
-		model = "gpt-4o"
+
+func (s *SimpleGptChat) getModel(userID string) string {
+	if model, err := db.GetModel(userID, config.Bot_Type_Gpt); err == nil && model != "" {
+		return model
+	} else if model = os.Getenv("gptModel"); model != "" {
+		return model
+
 	}
-	return model
+	return "gpt-4o"
 }
 
 func (s *SimpleGptChat) chat(userID, msg string) string {
@@ -44,11 +48,15 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	client := openai.NewClientWithConfig(cfg)
 
 	var msgs = GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
-	resp, err := client.CreateChatCompletion(context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    s.getModel(),
-			Messages: msgs,
-		})
+	req := openai.ChatCompletionRequest{
+		Model:    s.getModel(userID),
+		Messages: msgs,
+	}
+	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
+	if s.maxTokens > 0 {
+		req.MaxTokens = s.maxTokens // 参数名称参考：https://github.com/sashabaranov/go-openai
+	}
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		return err.Error()
 	}

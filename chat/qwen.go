@@ -18,16 +18,32 @@ const (
 
 type QwenChat struct {
 	BaseChat
-	Config *config.QwenConfig
+	Config    *config.QwenConfig
+	maxTokens int
 }
 
 type QwenRequest struct {
-	Model string `json:"model"`
-	Input Input  `json:"input"`
+	Model      string     `json:"model"`
+	Input      Input      `json:"input"`
+	Parameters Parameters `json:"parameters"`
 }
 
 type Input struct {
 	Messages []QwenMessage `json:"messages"`
+}
+
+type Parameters struct {
+	ResultFormat      string   `json:"result_format"`
+	Seed              int      `json:"seed"`
+	MaxTokens         int      `json:"max_tokens"`
+	TopP              float64  `json:"top_p"`
+	TopK              float64  `json:"top_k"`
+	RepetitionPenalty float64  `json:"repetition_penalty"`
+	Temperature       float64  `json:"temperature"`
+	Stop              string   `json:"stop"`
+	EnableSearch      bool     `json:"enable_search"`
+	IncrementalOutput bool     `json:"incremental_output"`
+	Tools             []string `json:"tools"`
 }
 
 type QwenMessage struct {
@@ -59,6 +75,13 @@ func (chat *QwenChat) Chat(userId, message string) (res string) {
 	return WithTimeChat(userId, message, chat.chat)
 }
 
+func (chat *QwenChat) getModel(userID string) string {
+	if model, err := db.GetModel(userID, config.Bot_Type_Qwen); err == nil && model != "" {
+		return model
+	}
+	return chat.Config.ModelVersion
+}
+
 func (chat *QwenChat) chat(userId string, message string) (res string) {
 	var msgs = GetMsgListWithDb(config.Bot_Type_Qwen, userId, QwenMessage{
 		Role:    QwenChatUser,
@@ -66,9 +89,16 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 	}, chat.toDbMsg, chat.toChatMsg)
 
 	qwenReq := QwenRequest{
-		Model: chat.Config.ModelVersion,
+		Model: chat.getModel(userId),
 		Input: Input{Messages: msgs},
 	}
+	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
+	if chat.maxTokens > 0 {
+		qwenReq.Parameters.MaxTokens = chat.maxTokens // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
+	}
+	qwenReq.Parameters.TopP = 0.8; // 通义千问要求top_p ∈ (0,1)
+	qwenReq.Parameters.RepetitionPenalty = 1.1; // 用于控制模型生成时的重复度，需要大于0。提高repetition_penalty时可以降低模型生成的重复度。1.0表示不做惩罚。默认为1.1。
+	qwenReq.Parameters.Temperature = 0.85; // 取值范围：[0, 2)，系统默认值0.85。不建议取值为0，无意义。
 
 	body, _ := sonic.Marshal(qwenReq)
 	req, err := http.NewRequest("POST", chat.Config.HostUrl, bytes.NewReader(body))
