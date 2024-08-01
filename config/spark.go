@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -23,6 +24,9 @@ type SparkConfig struct {
 }
 
 func extractVersion(url string) string {
+	if strings.Contains(url, "pro-128k") {
+		return "pro-128k"
+	}
 	// 使用正则表达式匹配版本号
 	regex := regexp.MustCompile(`v(\d+)\.(\d+)`)
 	matches := regex.FindStringSubmatch(url)
@@ -43,16 +47,20 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 	var sparkDomainVersion = ""
 
 	switch version {
+	case "pro-128k":
+		sparkDomainVersion = "pro-128k"
+	case "4.0":
+		sparkDomainVersion = "4.0Ultra"
 	case "3.5":
 		sparkDomainVersion = "generalv3.5"
 	case "3.1":
 		sparkDomainVersion = "generalv3"
 	case "2.1":
 		sparkDomainVersion = "generalv2"
-	case "1.5":
+	case "1.1":
 		sparkDomainVersion = "general"
 	default:
-		sparkDomainVersion = ""
+		sparkDomainVersion = "general"
 	}
 
 	cfg = &SparkConfig{
