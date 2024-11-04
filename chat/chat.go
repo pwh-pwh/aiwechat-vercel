@@ -87,7 +87,7 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		if msg.Event == message.EventSubscribe {
 			subText := config.GetWxSubscribeReply() + config.GetWxHelpReply()
 			if subText == "" {
-				subText = "哇，又有帅哥美女关注我啦😄"
+				subText = "你好，欢迎关注VAYFOU！"
 			}
 			return subText
 		} else if msg.Event == message.EventClick {
