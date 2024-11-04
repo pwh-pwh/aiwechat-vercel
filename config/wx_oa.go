@@ -55,10 +55,10 @@ func GetWxSubscribeReply() string {
 func GetWxHelpReply() string {
 	helpMsg := os.Getenv(Wx_Help_Reply_key)
 	if helpMsg == "" {
-		helpMsg = "输入以下命令进行对话\n/help：查看帮助\n/gpt：与GPT对话\n/spark：与星火对话\n/qwen：与通义千问对话\n/gemini：与gemini对话\n" +
-			"/prompt 你的prompt: 设置system prompt\n/getpt: 获取当前设置prompt\n/cpt: 清除当前设置prompt\n" +
-			"/setmodel model: 设置自定义model\n/setmodel: 重置model为默认值\n/getmodel: 获取当前model\n" +
-			"/clear:清除历史对话\n" + "/ta 代办事项1:设置todo\n" + "/tl:获取代办列表\n" + "/td 2:删除索引代办事件\n" + "/cb 代币对:查询价格"
+		helpMsg = "选择功能吧 🎯\n📖 查看帮助（/help）\n🤖 与 GPT 对话（/gpt）\n🚀 与星火对话（/spark）\n🐦 与通义千问对话（/qwen）\n🌟 与 gemini 对话（/gemini）\n" +
+			"✍️ 设置 system prompt（/prompt 你的 prompt）\n📄 获取当前设置 prompt（/getpt）\n🧹 清除当前设置 prompt（/cpt）\n" +
+			"🛠️ 设置自定义 model（/setmodel model）\n🔧 重置 model 为默认值（/setmodel）\n📋 获取当前 model（/getmodel）\n" +
+			"🗑️ 清除历史对话（/clear）\n" + "✅ 设置 todo（/ta 代办事项 1）\n" + "📃 获取代办列表（/tl）\n" + "❌ 删除索引代办事件（/td 2）\n" + "💰 查询价格（/cb 代币对）"
 	}
 	return strings.ReplaceAll(helpMsg, "\\n", "\n")
 }
