@@ -3,11 +3,12 @@ package chat
 import (
 	_ "errors"
 	"fmt"
-	"github.com/pwh-pwh/aiwechat-vercel/client"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pwh-pwh/aiwechat-vercel/client"
 
 	"github.com/google/generative-ai-go/genai"
 
@@ -301,7 +302,11 @@ func GetMsgListWithDb[T ChatMsg](botType, userId string, msg T, f func(msg T) db
 	isSupportPrompt := config.IsSupportPrompt(botType)
 	if isSupportPrompt {
 		prompt, err := db.GetPrompt(userId, botType)
-		if err == nil && prompt != "" {
+		if err != nil || prompt == "" {
+			prompt = config.GetDefaultSystemPrompt()
+		}
+
+		if prompt != "" {
 			dbList = append(dbList, db.Msg{
 				Role: "system",
 				Msg:  prompt,
