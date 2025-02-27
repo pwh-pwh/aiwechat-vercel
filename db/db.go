@@ -94,7 +94,7 @@ func (r *RedisChatDb) SetMsgList(botType string, userId string, msgList []Msg) {
 }
 
 func GetChatDb() (ChatDb, error) {
-	kvUrl := os.Getenv("KV_URL")
+	kvUrl := "redis://localhost:6379/0"
 	if kvUrl == "" {
 		return nil, errors.New("请配置KV_URL")
 	} else {

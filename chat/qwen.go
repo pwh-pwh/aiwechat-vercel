@@ -23,9 +23,9 @@ type QwenChat struct {
 }
 
 type QwenRequest struct {
-	Model      string     `json:"model"`
-	Input      Input      `json:"input"`
-	Parameters Parameters `json:"parameters"`
+	Model      string        `json:"model"`
+	Message    []QwenMessage `json:"messages"`
+	Parameters Parameters    `json:"parameters"`
 }
 
 type Input struct {
@@ -52,14 +52,14 @@ type QwenMessage struct {
 }
 
 type QwenResponse struct {
-	Output    Output `json:"output"`
-	Usage     Usage  `json:"usage"`
-	RequestID string `json:"request_id"`
+	Choices   []Choices `json:"choices"`
+	Usage     Usage     `json:"usage"`
+	RequestID string    `json:"id"`
 }
 
-type Output struct {
-	Text         string `json:"text"`
-	FinishReason string `json:"finish_reason"`
+type Choices struct {
+	Message      QwenMessage `json:"message"`
+	FinishReason string      `json:"finish_reason"`
 }
 
 type Usage struct {
@@ -89,18 +89,20 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 	}, chat.toDbMsg, chat.toChatMsg)
 
 	qwenReq := QwenRequest{
-		Model: chat.getModel(userId),
-		Input: Input{Messages: msgs},
+		Model:   chat.getModel(userId),
+		Message: msgs,
 	}
 	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
 	if chat.maxTokens > 0 {
 		qwenReq.Parameters.MaxTokens = chat.maxTokens // 参数名称参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 	}
-	qwenReq.Parameters.TopP = 0.8; // 通义千问要求top_p ∈ (0,1)
-	qwenReq.Parameters.RepetitionPenalty = 1.1; // 用于控制模型生成时的重复度，需要大于0。提高repetition_penalty时可以降低模型生成的重复度。1.0表示不做惩罚。默认为1.1。
-	qwenReq.Parameters.Temperature = 0.85; // 取值范围：[0, 2)，系统默认值0.85。不建议取值为0，无意义。
+	qwenReq.Parameters.TopP = 0.8              // 通义千问要求top_p ∈ (0,1)
+	qwenReq.Parameters.RepetitionPenalty = 1.1 // 用于控制模型生成时的重复度，需要大于0。提高repetition_penalty时可以降低模型生成的重复度。1.0表示不做惩罚。默认为1.1。
+	qwenReq.Parameters.Temperature = 0.85      // 取值范围：[0, 2)，系统默认值0.85。不建议取值为0，无意义。
 
 	body, _ := sonic.Marshal(qwenReq)
+
+	fmt.Println(string(body))
 	req, err := http.NewRequest("POST", chat.Config.HostUrl, bytes.NewReader(body))
 	if err != nil {
 		res = fmt.Sprintf("NewRequest failed,err:%v", err.Error())
@@ -137,7 +139,7 @@ func (chat *QwenChat) chat(userId string, message string) (res string) {
 		return
 	}
 
-	res = qwenRpn.Output.Text
+	res = qwenRpn.Choices[0].Message.Content
 
 	msgs = append(msgs, QwenMessage{
 		Role:    QwenChatBot,
