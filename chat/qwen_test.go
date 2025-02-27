@@ -10,7 +10,7 @@ import (
 )
 
 func TestQwenChat(t *testing.T) {
-	godotenv.Load("../conf/.env")
+	godotenv.Load("D:\\Workspace\\GO\\aiwechat-vercel\\conf\\.env")
 	db.ChatDbInstance, _ = db.GetChatDb()
 
 	config, _ := config.GetQwenConfig()
