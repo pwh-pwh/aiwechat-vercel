@@ -47,6 +47,8 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 	var sparkDomainVersion = ""
 
 	switch version {
+	case "x1":
+	    sparkDomainVersion = "x1"
 	case "pro-128k":
 		sparkDomainVersion = "pro-128k"
 	case "4.0":
