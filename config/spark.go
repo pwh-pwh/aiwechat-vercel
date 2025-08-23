@@ -1,129 +1,120 @@
-package chat
+package config
 
 import (
-	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
-	"net/url"
+	"errors"
+	"os"
+	"regexp"
 	"strings"
-	"time"
-
-	"github.com/gorilla/websocket"
-	"github.com/qqhsx/aiwechat-vercel/config"
 )
 
-type SparkChat struct {
-	Cfg *config.SparkConfig
+const (
+	Spark_Host_Url_Key      = "sparkUrl"
+	Spark_App_Id_Key        = "sparkAppId"
+	Spark_App_Secret_Key    = "sparkAppSecret"
+	Spark_ApiKey_Key        = "sparkApiKey"
+	Spark_Welcome_Reply_Key = "sparkWelcomeReply"
+)
+
+type SparkConfig struct {
+	HostUrl            string
+	AppId              string
+	ApiSecret          string
+	ApiKey             string
+	SparkDomainVersion string
 }
 
-type ChatResponse struct {
-	Header  map[string]interface{} `json:"header"`
-	Payload struct {
-		Choices struct {
-			Status int                      `json:"status"`
-			Seq    int                      `json:"seq"`
-			Text   []map[string]interface{} `json:"text"`
-		} `json:"choices"`
-	} `json:"payload"`
+func extractVersion(url string) string {
+	if strings.Contains(url, "pro-128k") {
+		return "pro-128k"
+	}
+	// 使用正则表达式匹配版本号
+	regex := regexp.MustCompile(`v(\d+)\.(\d+)`)
+	matches := regex.FindStringSubmatch(url)
+	if len(matches) != 3 {
+		return ""
+	}
+
+	// 返回版本号
+	return matches[1] + "." + matches[2]
 }
 
-// 生成鉴权 URL
-func (s *SparkChat) genAuthUrl(hostUrl string) (string, error) {
-	u, err := url.Parse(hostUrl)
-	if err != nil {
-		return "", err
+func GetSparkConfig() (cfg *SparkConfig, err error) {
+	var sparkUrl string = GetSparkHostUrl()
+	if sparkUrl == "" {
+		sparkUrl = "wss://spark-api.xf-yun.com/v3.5/chat"
 	}
-	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
-	signatureOrigin := fmt.Sprintf("host: %s\ndate: %s\nGET %s HTTP/1.1", u.Host, date, u.Path)
-	h := hmac.New(sha256.New, []byte(s.Cfg.ApiSecret))
-	h.Write([]byte(signatureOrigin))
-	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
-	authorizationOrigin := fmt.Sprintf(`api_key="%s", algorithm="hmac-sha256", headers="host date request-line", signature="%s"`, s.Cfg.ApiKey, signature)
-	authorization := base64.StdEncoding.EncodeToString([]byte(authorizationOrigin))
-	v := url.Values{}
-	v.Add("authorization", authorization)
-	v.Add("date", date)
-	v.Add("host", u.Host)
-	return hostUrl + "?" + v.Encode(), nil
+	version := extractVersion(sparkUrl)
+	var sparkDomainVersion = ""
+
+	switch version {
+	case "pro-128k":
+		sparkDomainVersion = "pro-128k"
+	case "4.0":
+		sparkDomainVersion = "4.0Ultra"
+	case "3.5":
+		sparkDomainVersion = "generalv3.5"
+	case "3.1":
+		sparkDomainVersion = "generalv3"
+	case "2.1":
+		sparkDomainVersion = "generalv2"
+	case "1.1":
+		sparkDomainVersion = "general"
+	default:
+		sparkDomainVersion = "general"
+	}
+
+	cfg = &SparkConfig{
+		HostUrl:            sparkUrl,
+		AppId:              GetSparkAppId(),
+		ApiSecret:          GetSparkAppSecret(),
+		ApiKey:             GetSparApiKey(),
+		SparkDomainVersion: sparkDomainVersion,
+	}
+
+	if cfg.HostUrl == "" {
+		err = errors.New("请配置sparkUrl")
+		return
+	}
+	if cfg.AppId == "" {
+		err = errors.New("请配置sparkAppId")
+		return
+	}
+	if cfg.ApiSecret == "" {
+		err = errors.New("请配置sparkAppSecret")
+		return
+	}
+	if cfg.ApiKey == "" {
+		err = errors.New("请配置sparkApiKey")
+		return
+	}
+	if cfg.SparkDomainVersion == "" {
+		err = errors.New("请配置sparkUrl")
+		return
+	}
+
+	return
 }
 
-// 核心聊天函数
-func (s *SparkChat) Chat(ctx context.Context, uid string, query string) (string, error) {
-	authUrl, err := s.genAuthUrl(s.Cfg.HostUrl)
-	if err != nil {
-		return "", fmt.Errorf("生成鉴权URL失败: %v", err)
+func GetSparkHostUrl() string {
+	return os.Getenv(Spark_Host_Url_Key)
+}
+
+func GetSparkAppId() string {
+	return os.Getenv(Spark_App_Id_Key)
+}
+
+func GetSparkAppSecret() string {
+	return os.Getenv(Spark_App_Secret_Key)
+}
+
+func GetSparApiKey() string {
+	return os.Getenv(Spark_ApiKey_Key)
+}
+
+func GetSparkWelcomeReply() (r string) {
+	r = os.Getenv(Spark_Welcome_Reply_Key)
+	if r == "" {
+		r = "我是讯飞星火机器人，开始聊天吧！"
 	}
-
-	conn, _, err := websocket.DefaultDialer.DialContext(ctx, authUrl, nil)
-	if err != nil {
-		return "", fmt.Errorf("连接WebSocket失败: %v", err)
-	}
-	defer conn.Close()
-
-	// 组装请求
-	req := map[string]interface{}{
-		"header": map[string]interface{}{
-			"app_id": s.Cfg.AppId,
-			"uid":    uid,
-		},
-		"parameter": map[string]interface{}{
-			"chat": map[string]interface{}{
-				"domain":      s.Cfg.SparkDomainVersion, // ⚠️ 使用 config 中的 domain
-				"temperature": 0.5,
-				"max_tokens":  2048,
-			},
-		},
-		"payload": map[string]interface{}{
-			"message": map[string]interface{}{
-				"text": []map[string]string{
-					{"role": "user", "content": query},
-				},
-			},
-		},
-	}
-
-	if err := conn.WriteJSON(req); err != nil {
-		return "", fmt.Errorf("发送请求失败: %v", err)
-	}
-
-	var sb strings.Builder
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			break
-		}
-
-		var resp ChatResponse
-		if err := json.Unmarshal(message, &resp); err != nil {
-			continue
-		}
-
-		// 解析返回内容
-		for _, item := range resp.Payload.Choices.Text {
-			var msg string
-			if val, ok := item["content"]; ok && val != nil {
-				if str, ok2 := val.(string); ok2 {
-					msg = str
-				}
-			}
-			if msg == "" {
-				if val, ok := item["reasoning_content"]; ok && val != nil {
-					if str, ok2 := val.(string); ok2 {
-						msg = str
-					}
-				}
-			}
-			sb.WriteString(msg)
-		}
-
-		// status=2 表示一次对话完成
-		if resp.Payload.Choices.Status == 2 {
-			break
-		}
-	}
-
-	return sb.String(), nil
+	return
 }
