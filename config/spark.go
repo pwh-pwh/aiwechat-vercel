@@ -62,7 +62,7 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 	case "1.1":
 		sparkDomainVersion = "general"
 	default:
-		sparkDomainVersion = "general"
+		sparkDomainVersion = "x1"
 	}
 
 	cfg = &SparkConfig{
