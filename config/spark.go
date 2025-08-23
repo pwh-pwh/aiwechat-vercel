@@ -23,32 +23,36 @@ type SparkConfig struct {
 	SparkDomainVersion string
 }
 
+// 提取 URL 里的版本信息
 func extractVersion(url string) string {
+	if strings.Contains(url, "x1") {
+		return "x1"
+	}
 	if strings.Contains(url, "pro-128k") {
 		return "pro-128k"
 	}
-	// 使用正则表达式匹配版本号
+	// 使用正则表达式匹配 v3.5 / v4.0 等
 	regex := regexp.MustCompile(`v(\d+)\.(\d+)`)
 	matches := regex.FindStringSubmatch(url)
 	if len(matches) != 3 {
 		return ""
 	}
-
-	// 返回版本号
 	return matches[1] + "." + matches[2]
 }
 
 func GetSparkConfig() (cfg *SparkConfig, err error) {
 	var sparkUrl string = GetSparkHostUrl()
 	if sparkUrl == "" {
+		// 默认走 3.5 版本
 		sparkUrl = "wss://spark-api.xf-yun.com/v3.5/chat"
 	}
+
 	version := extractVersion(sparkUrl)
 	var sparkDomainVersion = ""
 
 	switch version {
 	case "x1":
-	    sparkDomainVersion = "x1"
+		sparkDomainVersion = "x1"
 	case "pro-128k":
 		sparkDomainVersion = "pro-128k"
 	case "4.0":
@@ -62,6 +66,7 @@ func GetSparkConfig() (cfg *SparkConfig, err error) {
 	case "1.1":
 		sparkDomainVersion = "general"
 	default:
+		// 默认走 x1，避免报错
 		sparkDomainVersion = "x1"
 	}
 
