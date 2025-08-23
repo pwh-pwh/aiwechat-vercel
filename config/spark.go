@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"your_project/config" // 修改为你项目里 config 包的真实路径
+	"github.com/qqhsx/aiwechat-vercel/config"
 )
 
 type SparkChat struct {
