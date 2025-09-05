@@ -21,12 +21,13 @@ const (
 	Bot_Type_Spark  = "spark"
 	Bot_Type_Qwen   = "qwen"
 	Bot_Type_Gemini = "gemini"
+	Bot_Type_Keyword = "keyword"
 )
 
 var (
 	Cache sync.Map
 
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Keyword}
 )
 
 func IsSupportPrompt(botType string) bool {
