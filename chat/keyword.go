@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/pwh-pwh/aiwechat-vercel/db"
