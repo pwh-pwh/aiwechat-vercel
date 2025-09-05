@@ -21,16 +21,17 @@ const (
 	Bot_Type_Spark  = "spark"
 	Bot_Type_Qwen   = "qwen"
 	Bot_Type_Gemini = "gemini"
+	Bot_Type_Claude  = "claude"
 )
 
 var (
 	Cache sync.Map
 
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Claude}
 )
 
 func IsSupportPrompt(botType string) bool {
-	return botType == Bot_Type_Gpt || botType == Bot_Type_Qwen || botType == Bot_Type_Spark
+	return botType == Bot_Type_Gpt || botType == Bot_Type_Qwen || botType == Bot_Type_Spark || botType == Bot_Type_Claude
 }
 
 func CheckBotConfig(botType string) (actualotType string, err error) {
@@ -47,6 +48,8 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 		_, err = GetQwenConfig()
 	case Bot_Type_Gemini:
 		err = CheckGeminiConfig()
+	case Bot_Type_Claude:
+		err = CheckClaudeConfig()
 	}
 	return
 }
@@ -59,6 +62,7 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 		Bot_Type_Spark:  true,
 		Bot_Type_Qwen:   true,
 		Bot_Type_Gemini: true,
+		Bot_Type_Claude: true,
 	}
 
 	err := CheckGptConfig()
@@ -76,6 +80,10 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 	err = CheckGeminiConfig()
 	if err != nil {
 		checkRes[Bot_Type_Gemini] = false
+	}
+	err = CheckClaudeConfig()
+	if err != nil {
+		checkRes[Bot_Type_Claude] = false
 	}
 	return
 }
@@ -97,6 +105,14 @@ func CheckGeminiConfig() error {
 	key := GetGeminiKey()
 	if key == "" {
 		return errors.New("请配置geminiKey")
+	}
+	return nil
+}
+
+func CheckClaudeConfig() error {
+	key := GetClaudeKey()
+	if key == "" {
+		return errors.New("请配置claudeKey")
 	}
 	return nil
 }
