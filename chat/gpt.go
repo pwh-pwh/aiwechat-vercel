@@ -41,6 +41,11 @@ func (s *SimpleGptChat) getModel(userID string) string {
 }
 
 func (s *SimpleGptChat) chat(userID, msg string) string {
+	// Check if user is verified
+	if !config.IsUserVerified(userID) {
+		return config.GetDevMessage()
+	}
+
 	cfg := openai.DefaultConfig(s.token)
 	cfg.BaseURL = s.url
 	client := openai.NewClientWithConfig(cfg)

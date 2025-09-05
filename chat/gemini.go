@@ -40,6 +40,11 @@ func (s *GeminiChat) getModel(userID string) string {
 }
 
 func (s *GeminiChat) chat(userId, msg string) string {
+	// Check if user is verified
+	if !config.IsUserVerified(userId) {
+		return config.GetDevMessage()
+	}
+
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(s.key))
 	if err != nil {

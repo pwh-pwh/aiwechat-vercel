@@ -49,6 +49,7 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Todo_Del:  DelTodo,
 
 	config.Wx_Coin: GetCoin,
+	config.Wx_Command_AddMe: AddMe,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -86,11 +87,22 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 		return msg.PicURL
 	case message.MsgTypeEvent:
 		if msg.Event == message.EventSubscribe {
-			subText := config.GetWxSubscribeReply() + config.GetWxHelpReply()
-			if subText == "" {
-				subText = "哇，又有帅哥美女关注我啦😄"
+			// Check if user is verified
+			userId := string(msg.FromUserName)
+			if config.IsUserVerified(userId) {
+				subText := config.GetWxSubscribeReply() + config.GetWxHelpReply()
+				if subText == "" {
+					subText = "哇，又有帅哥美女关注我啦😄"
+				}
+				return subText
+			} else {
+				password := config.GetSubscribePassword()
+				if password != "" {
+					return fmt.Sprintf("欢迎关注！请发送 /addme %s 来验证身份并使用完整功能", password)
+				} else {
+					return config.GetDevMessage()
+				}
 			}
-			return subText
 		} else if msg.Event == message.EventClick {
 			switch msg.EventKey {
 			case config.GetWxEventKeyChatGpt():
@@ -342,5 +354,19 @@ func SaveMsgListWithDb[T ChatMsg](botType, userId string, msgList []T, f func(ms
 			}
 			db.ChatDbInstance.SetMsgList(botType, userId, list)
 		}()
+	}
+}
+
+func AddMe(password, userId string) string {
+	correctPassword := config.GetSubscribePassword()
+	if correctPassword == "" {
+		return "管理员未设置订阅暗号"
+	}
+	
+	if password == correctPassword {
+		config.VerifyUser(userId)
+		return "验证成功！现在可以使用所有功能了"
+	} else {
+		return "暗号错误，请联系管理员获取正确暗号"
 	}
 }

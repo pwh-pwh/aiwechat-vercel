@@ -58,6 +58,11 @@ func (chat *SparkChat) Chat(userId, message string) (res string) {
 }
 
 func (chat *SparkChat) chat(userId string, message string) (res string) {
+	// Check if user is verified
+	if !config.IsUserVerified(userId) {
+		return config.GetDevMessage()
+	}
+
 	dialer := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}

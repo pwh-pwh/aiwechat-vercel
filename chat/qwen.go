@@ -83,6 +83,11 @@ func (chat *QwenChat) getModel(userID string) string {
 }
 
 func (chat *QwenChat) chat(userId string, message string) (res string) {
+	// Check if user is verified
+	if !config.IsUserVerified(userId) {
+		return config.GetDevMessage()
+	}
+
 	var msgs = GetMsgListWithDb(config.Bot_Type_Qwen, userId, QwenMessage{
 		Role:    QwenChatUser,
 		Content: message,
