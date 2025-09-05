@@ -110,11 +110,7 @@ func CheckGeminiConfig() error {
 }
 
 func CheckClaudeConfig() error {
-	key := GetClaudeKey()
-	if key == "" {
-		return errors.New("请配置claudeKey")
-	}
-	return nil
+	return ValidateClaudeConfig()
 }
 
 func GetBotType() string {
