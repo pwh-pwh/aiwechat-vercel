@@ -1,12 +1,13 @@
 # aiwechat-vercel
+
 使用[vercel](https://vercel.com/dashboard)的functions，将ai功能加入微信公众号
 ![image](cover.png)
 
-### 介绍
+## 介绍
 
 无需服务器，门槛低，只需一个可以绑定到vercel的域名(无需备案)即可，基本0成本
 
-### 快速开始
+## 快速开始
 
 - 提前到Vercel创建Redis数据库
   - Dashboard--Storage--Create--KV Redis
@@ -16,7 +17,7 @@
 - 在vercel该项目详情页面的Storage选择连接前面创建的redis数据库
   - 数据库链接成功后，Vercel会自动配置KV_URL环境变量
 
-#### 数据库配置详情
+### 数据库配置详情
 
 图片步骤:
 > ![config](http://mmbiz.qpic.cn/mmbiz_jpg/6q5SCtonIfFYZpvZdOUbibQBicXkllyO3K6XOp2zUv6PE3e1tqpfYA7wSYRWByZX9Wibibq9PDr6ML4iaiacTWNAaI9Q/0)
@@ -30,6 +31,7 @@ gptModel=gpt-3.5-turbo gpt模型(选填,默认gpt-3.5-turbo)
 WX_TOKEN=*** 微信公众号开发平台设置的token
 botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType=gpt
 ```
+
 如何检查是否配置成功
 
 部署后访问 vercel提供的域名/api/check 页面返回check ok即可
@@ -45,7 +47,7 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 
 也有大佬写了自己在cloudflare部署的教程[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions/22)
 
-### 功能支持
+## 功能支持
 
 1. 支持接入gpt,星火,通义千问,gemini
 2. 超时回复(go协程很好用)
@@ -57,7 +59,8 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 8. 支持设置system prompt
 9. 支持指令
 
-### 指令支持
+## 指令支持
+
 1. /help：查看帮助
 2. /gpt：切换与GPT对话
 3. /spark：切换与星火对话
@@ -73,12 +76,13 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 
 有其它想要支持的指令欢迎提issue或者pr (例如查看天气啥的)
 
-### 后续计划添加指令
+## 后续计划添加指令
+
 1. /fy: 翻译文本
 2. /wec: 查看天气
 3. todolist管理： /ta: 添加待办事项 /td: 删除待办事项 /tl: 查看待办事项列表
 
-### 后续
+## 后续
 
 - 支持国内大部分可以白嫖的ai 如星火(已支持，感谢大佬pr)，通义千问(已支持，感谢大佬pr)等(有想要添加的可以提个issue)
 - 增加指令控制(已支持)，增加管理员设置
@@ -88,11 +92,13 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 - todolist功能，用户可以在机器人管理待办事件
 - 查看股票和币价
 
-### 杂念
-项目起因:偶然看到网上有人使用vercel实现了,但是功能比较单一，看了一下文档，支持go所以就想自己开发下，支持接入多一点ai和自定义功能，项目仅供学习参考
-也欢迎各位大佬pr,来个免费的<mark>star<mark>
+## 杂念
 
-### 问题汇总
+项目起因:偶然看到网上有人使用vercel实现了,但是功能比较单一，看了一下文档，支持go所以就想自己开发下，支持接入多一点ai和自定义功能，项目仅供学习参考
+也欢迎各位大佬pr,来个免费的**star**
+
+## 问题汇总
+
 1. 为啥要使用域名? 答: vercel提供的域名国内被墙了，微信无法访问
 2. 为啥有时候可以回复，有时候没有回复？答: 微信公众号限制答复500多字，超过回复会失败，可以增加限制字数的提示词解决。还有一个原因是答复太久，接口超时了免费版vercel的functions限制接口10s
 3. 域名需要备案吗?答:不需要，另外也可以在cloudflare托管域名(白嫖一些2级域名，托管上去，可以达到0成本)
@@ -104,8 +110,10 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 
 更多功能探讨[discussions](https://github.com/pwh-pwh/aiwechat-vercel/discussions)
 
-### Star History
+## Star History
+
 ![Star History Chart](https://api.star-history.com/svg?repos=pwh-pwh/aiwechat-vercel&type=Date)
 
-### 项目灵感来源
+## 项目灵感来源
+
 [spark-wechat-vercel](https://github.com/LuhangRui/spark-wechat-vercel)
