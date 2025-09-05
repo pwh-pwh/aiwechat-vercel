@@ -152,7 +152,6 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	}
 
 	err = RedisClient.Set(context.Background(), key, val, expires).Err()
-
 	return
 }
 
