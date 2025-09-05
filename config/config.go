@@ -48,6 +48,8 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 		_, err = GetQwenConfig()
 	case Bot_Type_Gemini:
 		err = CheckGeminiConfig()
+	case Bot_Type_Keyword:
+		err = nil // 本地实现，不需要外部配置
 	}
 	return
 }
@@ -60,6 +62,7 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 		Bot_Type_Spark:  true,
 		Bot_Type_Qwen:   true,
 		Bot_Type_Gemini: true,
+		Bot_Type_Keyword: true, // 增加对关键词模式的检查
 	}
 
 	err := CheckGptConfig()
