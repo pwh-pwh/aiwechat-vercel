@@ -26,7 +26,13 @@ const (
 	MSG_KEY    = "msg"
 	MODEL_KEY  = "model"
 	TODO_KEY   = "todo"
+	KEYWORD_REPLY_KEY = "keyword" // 新增关键词回复的键
 )
+
+type KeywordReply struct {
+    Keyword string `json:"keyword"`
+    Reply   string `json:"reply"`
+}
 
 func init() {
 	db, err := GetChatDb()
@@ -126,7 +132,7 @@ func GetValue(key string) (val string, err error) {
 	val, flag := GetValueWithMemory(key)
 	if !flag {
 		if RedisClient == nil {
-			return
+			return "", errors.New("redis client is nil")
 		}
 		val, err = RedisClient.Get(context.Background(), key).Result()
 		SetValueWithMemory(key, val)
@@ -139,7 +145,7 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	SetValueWithMemory(key, val)
 
 	if RedisClient == nil {
-		return
+		return errors.New("redis client is nil")
 	}
 	if expires == 0 {
 		expires = time.Minute * 30
@@ -224,4 +230,78 @@ func SetModel(userId, botType, model string) error {
 
 func GetModel(userId, botType string) (string, error) {
 	return GetValue(fmt.Sprintf("%s:%s:%s", MODEL_KEY, userId, botType))
+}
+
+// SetKeywordReply adds or updates a keyword reply.
+func SetKeywordReply(keyword, reply string) error {
+	replies, err := GetKeywordReplies()
+	if err != nil && err != redis.Nil {
+		return err
+	}
+
+	found := false
+	for i, kr := range replies {
+		if kr.Keyword == keyword {
+			replies[i].Reply = reply
+			found = true
+			break
+		}
+	}
+	if !found {
+		replies = append(replies, KeywordReply{Keyword: keyword, Reply: reply})
+	}
+
+	res, err := sonic.Marshal(replies)
+	if err != nil {
+		return err
+	}
+
+	return SetValue(KEYWORD_REPLY_KEY, res, 0)
+}
+
+// GetKeywordReplies retrieves all keyword replies.
+func GetKeywordReplies() ([]KeywordReply, error) {
+	val, err := GetValue(KEYWORD_REPLY_KEY)
+	if err != nil {
+		if err == redis.Nil {
+			return []KeywordReply{}, nil
+		}
+		return nil, err
+	}
+
+	var replies []KeywordReply
+	err = sonic.Unmarshal([]byte(val), &replies)
+	if err != nil {
+		return nil, err
+	}
+	return replies, nil
+}
+
+// RemoveKeyword removes a keyword reply.
+func RemoveKeyword(keyword string) error {
+	replies, err := GetKeywordReplies()
+	if err != nil {
+		return err
+	}
+
+	var newReplies []KeywordReply
+	for _, kr := range replies {
+		if kr.Keyword != keyword {
+			newReplies = append(newReplies, kr)
+		}
+	}
+
+	if len(newReplies) == 0 {
+		DeleteKey(KEYWORD_REPLY_KEY)
+		return nil
+	}
+
+	res, err := sonic.Marshal(newReplies)
+	if err != nil {
+		return err
+	}
+
+	return SetValue(KEYWORD_REPLY_KEY, res, 0)
+}
+
 }
