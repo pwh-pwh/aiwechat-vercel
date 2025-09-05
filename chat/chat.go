@@ -1,21 +1,17 @@
 package chat
 
 import (
-	_ "errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pwh-pwh/aiwechat-vercel/client"
-
 	"github.com/google/generative-ai-go/genai"
-
+	"github.com/pwh-pwh/aiwechat-vercel/client"
+	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/sashabaranov/go-openai"
-
-	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
@@ -127,11 +123,6 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 }
 
 func SwitchUserBot(userId string, botType string) string {
-	if botType == config.Bot_Type_Keyword {
-		db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
-		return config.GetBotWelcomeReply(botType)
-	}
-
 	if _, err := config.CheckBotConfig(botType); err != nil {
 		return err.Error()
 	}
