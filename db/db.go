@@ -274,6 +274,11 @@ func GetKeywordReplies() ([]KeywordReply, error) {
 		return nil, err
 	}
 
+	// Handle empty string case gracefully
+	if val == "" {
+		return []KeywordReply{}, nil
+	}
+
 	var replies []KeywordReply
 	err = sonic.Unmarshal([]byte(val), &replies)
 	if err != nil {
