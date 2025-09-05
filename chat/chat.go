@@ -35,6 +35,22 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
+	config.Wx_Command_Keyword: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Keyword)
+	},
+	config.Wx_Command_AI: func(param, userId string) string {
+		// 切换回默认AI模式
+		return SwitchUserBot(userId, config.Bot_Type_Gpt)
+	},
+	config.Wx_Command_AddKeyword: func(param, userId string) string {
+		return AddKeyword(param, userId)
+	},
+	config.Wx_Command_DelKeyword: func(param, userId string) string {
+		return DelKeyword(param, userId)
+	},
+	config.Wx_Command_ListKeywords: func(param, userId string) string {
+		return ListKeywords(param, userId)
+	},
 
 	config.Wx_Command_Prompt:    SetPrompt,
 	config.Wx_Command_RmPrompt:  RmPrompt,
@@ -111,6 +127,10 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 }
 
 func SwitchUserBot(userId string, botType string) string {
+	if botType == config.Bot_Type_Keyword {
+		return config.GetBotWelcomeReply(botType)
+	}
+
 	if _, err := config.CheckBotConfig(botType); err != nil {
 		return err.Error()
 	}
@@ -147,6 +167,48 @@ func GetPrompt(param string, userId string) string {
 	}
 	return fmt.Sprintf("%s 获取prompt成功，prompt：%s", botType, prompt)
 }
+
+func AddKeyword(param, userId string) string {
+	parts := strings.SplitN(param, ":", 2)
+	if len(parts) != 2 {
+		return "添加关键词失败，格式应为：关键词:回复内容"
+	}
+	keyword := strings.TrimSpace(parts[0])
+	reply := strings.TrimSpace(parts[1])
+
+	err := db.SetKeywordReply(keyword, reply)
+	if err != nil {
+		return fmt.Sprintf("添加关键词失败：%s", err.Error())
+	}
+	return fmt.Sprintf("关键词 '%s' 添加成功！", keyword)
+}
+
+func DelKeyword(param, userId string) string {
+	keyword := strings.TrimSpace(param)
+	err := db.RemoveKeyword(keyword)
+	if err != nil {
+		return fmt.Sprintf("删除关键词失败：%s", err.Error())
+	}
+	return fmt.Sprintf("关键词 '%s' 删除成功！", keyword)
+}
+
+func ListKeywords(param, userId string) string {
+	replies, err := db.GetKeywordReplies()
+	if err != nil {
+		return fmt.Sprintf("获取关键词列表失败：%s", err.Error())
+	}
+	if len(replies) == 0 {
+		return "当前没有设置任何关键词。"
+	}
+
+	var sb strings.Builder
+	sb.WriteString("已设置的关键词列表：\n")
+	for _, kr := range replies {
+		sb.WriteString(fmt.Sprintf("- 关键词: %s\n  回复: %s\n", kr.Keyword, kr.Reply))
+	}
+	return sb.String()
+}
+
 
 func GetTodoList(param string, userId string) string {
 	list, err := db.GetTodoList(userId)
@@ -257,6 +319,8 @@ func GetChatBot(botType string) BaseChat {
 	maxTokens := config.GetMaxTokens()
 
 	switch botType {
+	case config.Bot_Type_Keyword:
+		return &KeywordChat{}
 	case config.Bot_Type_Gpt:
 		url := os.Getenv("GPT_URL")
 		if url == "" {
