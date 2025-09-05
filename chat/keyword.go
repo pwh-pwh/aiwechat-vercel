@@ -12,6 +12,12 @@ type KeywordChat struct {
 }
 
 func (k *KeywordChat) Chat(userID string, msg string) string {
+	// 检查是否为指令，如果是则交给DoAction处理
+	r, flag := DoAction(userID, msg)
+	if flag {
+		return r
+	}
+
 	replies, err := db.GetKeywordReplies()
 	if err != nil {
 		return "获取关键词回复失败"
