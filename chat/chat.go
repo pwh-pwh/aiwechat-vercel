@@ -128,6 +128,7 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 
 func SwitchUserBot(userId string, botType string) string {
 	if botType == config.Bot_Type_Keyword {
+		db.SetValue(fmt.Sprintf("%v:%v", config.Bot_Type_Key, userId), botType, 0)
 		return config.GetBotWelcomeReply(botType)
 	}
 
