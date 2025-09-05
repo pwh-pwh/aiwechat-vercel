@@ -135,6 +135,9 @@ func GetValue(key string) (val string, err error) {
 			return "", errors.New("redis client is nil")
 		}
 		val, err = RedisClient.Get(context.Background(), key).Result()
+		if err == redis.Nil {
+			return "", nil
+		}
 		SetValueWithMemory(key, val)
 		return
 	}
@@ -148,10 +151,13 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 		return errors.New("redis client is nil")
 	}
 	if expires == 0 {
+		// No expiration
+	} else {
 		expires = time.Minute * 30
 	}
 
 	err = RedisClient.Set(context.Background(), key, val, expires).Err()
+
 	return
 }
 
@@ -301,6 +307,4 @@ func RemoveKeyword(keyword string) error {
 	}
 
 	return SetValue(KEYWORD_REPLY_KEY, res, 0)
-}
-
 }
