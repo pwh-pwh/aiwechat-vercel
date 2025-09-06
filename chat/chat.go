@@ -38,12 +38,12 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_AI: func(param, userId string) string {
 		// 切换回默认AI模式
 		lastAIBot, err := db.GetLastAIBot(userId)
-		if err == nil && slices.Contains(config.Support_Bots, lastAIBot) {
+		if err == nil && slices.Contains(config.Support_Bots, lastAIBot) && lastAIBot != config.Bot_Type_Keyword && lastAIBot != config.Bot_Type_Echo {
 			return SwitchUserBot(userId, lastAIBot)
 		}
 
 		defaultBotType := config.GetBotType()
-		if !slices.Contains(config.Support_Bots, defaultBotType) {
+		if !slices.Contains(config.Support_Bots, defaultBotType) || defaultBotType == config.Bot_Type_Keyword || defaultBotType == config.Bot_Type_Echo {
 			defaultBotType = config.Bot_Type_Echo
 		}
 		return SwitchUserBot(userId, defaultBotType)
