@@ -73,9 +73,35 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Coin: GetCoin,
 }
 
+// isAdmin 检查用户是否为管理员
+func isAdmin(userId string) bool {
+	adminUsers := config.GetAdminUsers()
+	for _, admin := range adminUsers {
+		if admin == userId {
+			return true
+		}
+	}
+	return false
+}
+
 func DoAction(userId, msg string) (r string, flag bool) {
 	action, param, flag := isAction(msg)
 	if flag {
+		// 管理员权限检查
+		switch action {
+		case config.Wx_Command_AddKeyword,
+			config.Wx_Command_DelKeyword,
+			config.Wx_Command_Prompt,
+			config.Wx_Command_RmPrompt,
+			config.Wx_Command_SetModel,
+			config.Wx_Command_Clear,
+			config.Wx_Todo_Add,
+			config.Wx_Todo_Del:
+			if !isAdmin(userId) {
+				return "对不起，您没有权限执行此操作。", true
+			}
+		}
+
 		f := actionMap[action]
 		r = f(param, userId)
 	}
