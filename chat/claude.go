@@ -63,8 +63,8 @@ func (s *ClaudeChat) toChatMsg(msg db.Msg) ClaudeMessage {
 	}
 }
 
-func (s *ClaudeChat) getModel(userID string) string {
-	if model, err := db.GetModel(userID, config.Bot_Type_Claude); err == nil && model != "" {
+func (s *ClaudeChat) getModel(userId string) string {
+	if model, err := db.GetModel(userId, config.Bot_Type_Claude); err == nil && model != "" {
 		return model
 	} else if model := os.Getenv("claudeModel"); model != "" {
 		return model
@@ -72,13 +72,13 @@ func (s *ClaudeChat) getModel(userID string) string {
 	return "claude-3-5-sonnet-20241022"
 }
 
-func (s *ClaudeChat) chat(userID, msg string) string {
+func (s *ClaudeChat) chat(userId, msg string) string {
 	apiUrl := fmt.Sprintf("%s/v1/messages", s.url)
 	
 	// Get conversation history from database
 	var dbMsgs []db.Msg
 	if db.ChatDbInstance != nil {
-		historyMsgs, err := db.ChatDbInstance.GetMsgList(config.Bot_Type_Claude, userID)
+		historyMsgs, err := db.ChatDbInstance.GetMsgList(config.Bot_Type_Claude, userId)
 		if err == nil && len(historyMsgs) > 0 {
 			dbMsgs = historyMsgs
 		}
@@ -98,7 +98,7 @@ func (s *ClaudeChat) chat(userID, msg string) string {
 	
 	// Create request body
 	reqBody := ClaudeRequest{
-		Model:     s.getModel(userID),
+		Model:     s.getModel(userId),
 		Messages:  messages,
 		MaxTokens: s.maxTokens,
 		System:    config.GetDefaultSystemPrompt(),
@@ -173,16 +173,16 @@ func (s *ClaudeChat) chat(userID, msg string) string {
 	}
 	
 	if db.ChatDbInstance != nil {
-		db.ChatDbInstance.SetMsgList(config.Bot_Type_Claude, userID, saveMsgs)
+		db.ChatDbInstance.SetMsgList(config.Bot_Type_Claude, userId, saveMsgs)
 	}
 	
 	return responseText
 }
 
-func (c *ClaudeChat) Chat(userID string, msg string) string {
-	r, flag := DoAction(userID, msg)
+func (c *ClaudeChat) Chat(userId string, msg string) string {
+	r, flag := DoAction(userId, msg)
 	if flag {
 		return r
 	}
-	return WithTimeChat(userID, msg, c.chat)
+	return WithTimeChat(userId, msg, c.chat)
 }

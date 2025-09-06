@@ -8,6 +8,6 @@ func (e *Echo) HandleMediaMsg(msg *message.MixMessage) string {
 	return "不支持的消息类型"
 }
 
-func (e *Echo) Chat(userID string, msg string) string {
+func (e *Echo) Chat(userId string, msg string) string {
 	return msg
 }
