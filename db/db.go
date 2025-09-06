@@ -151,6 +151,7 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	if RedisClient == nil {
 		return errors.New("redis client is nil")
 	}
+	// expires为0时永不过期，否则使用默认30分钟
 	if expires != 0 {
 		expires = time.Minute * 30
 	}
@@ -273,6 +274,7 @@ func GetKeywordReplies() ([]KeywordReply, error) {
 		return nil, err
 	}
 
+	// Handle empty string case gracefully
 	if val == "" {
 		return []KeywordReply{}, nil
 	}
@@ -320,6 +322,4 @@ func SetLastAIBot(userId, botType string) error {
 // GetLastAIBot retrieves the last used AI bot type.
 func GetLastAIBot(userId string) (string, error) {
 	return GetValue(fmt.Sprintf("%s:%s", LAST_AI_BOT_KEY, userId))
-}
-
 }
