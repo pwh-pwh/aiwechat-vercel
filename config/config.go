@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/pwh-pwh/aiwechat-vercel/db"
@@ -22,6 +23,7 @@ const (
 	Bot_Type_Qwen   = "qwen"
 	Bot_Type_Gemini = "gemini"
 	Bot_Type_Keyword = "keyword"
+	AdminUsersKey = "ADMIN_USERS"
 )
 
 var (
@@ -137,4 +139,13 @@ func GetMaxTokens() int {
 
 func GetDefaultSystemPrompt() string {
 	return os.Getenv("defaultSystemPrompt")
+}
+
+// GetAdminUsers 从环境变量中获取管理员用户列表
+func GetAdminUsers() []string {
+	adminUsers := os.Getenv(AdminUsersKey)
+	if adminUsers == "" {
+		return nil
+	}
+	return strings.Split(adminUsers, ",")
 }
