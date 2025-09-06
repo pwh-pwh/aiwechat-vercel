@@ -75,8 +75,8 @@ func (chat *QwenChat) Chat(userId, message string) (res string) {
 	return WithTimeChat(userId, message, chat.chat)
 }
 
-func (chat *QwenChat) getModel(userID string) string {
-	if model, err := db.GetModel(userID, config.Bot_Type_Qwen); err == nil && model != "" {
+func (chat *QwenChat) getModel(userId string) string {
+	if model, err := db.GetModel(userId, config.Bot_Type_Qwen); err == nil && model != "" {
 		return model
 	}
 	return chat.Config.ModelVersion

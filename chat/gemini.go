@@ -32,8 +32,8 @@ func (s *GeminiChat) toChatMsg(msg db.Msg) *genai.Content {
 	return &genai.Content{Parts: []genai.Part{genai.Text(msg.Msg)}, Role: msg.Role}
 }
 
-func (s *GeminiChat) getModel(userID string) string {
-	if model, err := db.GetModel(userID, config.Bot_Type_Gemini); err == nil && model != "" {
+func (s *GeminiChat) getModel(userId string) string {
+	if model, err := db.GetModel(userId, config.Bot_Type_Gemini); err == nil && model != "" {
 		return model
 	}
 	return "gemini-2.0-flash"
@@ -74,11 +74,11 @@ func (s *GeminiChat) chat(userId, msg string) string {
 	return string(text)
 }
 
-func (g *GeminiChat) Chat(userID string, msg string) string {
-	r, flag := DoAction(userID, msg)
+func (g *GeminiChat) Chat(userId string, msg string) string {
+	r, flag := DoAction(userId, msg)
 	if flag {
 		return r
 	}
-	return WithTimeChat(userID, msg, g.chat)
+	return WithTimeChat(userId, msg, g.chat)
 
 }

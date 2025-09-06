@@ -31,8 +31,8 @@ func (s *SimpleGptChat) toChatMsg(msg db.Msg) openai.ChatCompletionMessage {
 	}
 }
 
-func (s *SimpleGptChat) getModel(userID string) string {
-	if model, err := db.GetModel(userID, config.Bot_Type_Gpt); err == nil && model != "" {
+func (s *SimpleGptChat) getModel(userId string) string {
+	if model, err := db.GetModel(userId, config.Bot_Type_Gpt); err == nil && model != "" {
 		return model
 	} else if model = os.Getenv("gptModel"); model != "" {
 		return model
@@ -40,14 +40,14 @@ func (s *SimpleGptChat) getModel(userID string) string {
 	return "gpt-3.5-turbo"
 }
 
-func (s *SimpleGptChat) chat(userID, msg string) string {
+func (s *SimpleGptChat) chat(userId, msg string) string {
 	cfg := openai.DefaultConfig(s.token)
 	cfg.BaseURL = s.url
 	client := openai.NewClientWithConfig(cfg)
 
-	var msgs = GetMsgListWithDb(config.Bot_Type_Gpt, userID, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
+	var msgs = GetMsgListWithDb(config.Bot_Type_Gpt, userId, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg}, s.toDbMsg, s.toChatMsg)
 	req := openai.ChatCompletionRequest{
-		Model:    s.getModel(userID),
+		Model:    s.getModel(userId),
 		Messages: msgs,
 	}
 	// 如果设置了环境变量且合法，则增加maxTokens参数，否则不设置
@@ -60,14 +60,14 @@ func (s *SimpleGptChat) chat(userID, msg string) string {
 	}
 	content := resp.Choices[0].Message.Content
 	msgs = append(msgs, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: content})
-	SaveMsgListWithDb(config.Bot_Type_Gpt, userID, msgs, s.toDbMsg)
+	SaveMsgListWithDb(config.Bot_Type_Gpt, userId, msgs, s.toDbMsg)
 	return content
 }
 
-func (s *SimpleGptChat) Chat(userID string, msg string) string {
-	r, flag := DoAction(userID, msg)
+func (s *SimpleGptChat) Chat(userId string, msg string) string {
+	r, flag := DoAction(userId, msg)
 	if flag {
 		return r
 	}
-	return WithTimeChat(userID, msg, s.chat)
+	return WithTimeChat(userId, msg, s.chat)
 }
