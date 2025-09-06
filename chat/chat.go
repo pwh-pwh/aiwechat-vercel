@@ -3,6 +3,7 @@ package chat
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -36,16 +37,16 @@ var actionMap = map[string]func(param, userId string) string{
 	},
 	config.Wx_Command_AI: func(param, userId string) string {
 		// 切换回默认AI模式
-		botType := config.GetUserBotType(userId)
-		// 如果上次使用的不是AI模型，则回退到环境变量设置或Echo
-		if botType == config.Bot_Type_Keyword || botType == config.Bot_Type_Echo {
-			botType = config.GetBotType()
-			// 如果环境变量设置的也不是AI模型，则回退到Echo
-			if botType == config.Bot_Type_Keyword || botType == config.Bot_Type_Echo {
-				botType = config.Bot_Type_Echo
-			}
+		lastAIBot, err := db.GetLastAIBot(userId)
+		if err == nil && slices.Contains(config.Support_Bots, lastAIBot) {
+			return SwitchUserBot(userId, lastAIBot)
 		}
-		return SwitchUserBot(userId, botType)
+
+		defaultBotType := config.GetBotType()
+		if !slices.Contains(config.Support_Bots, defaultBotType) {
+			defaultBotType = config.Bot_Type_Echo
+		}
+		return SwitchUserBot(userId, defaultBotType)
 	},
 	config.Wx_Command_AddKeyword: func(param, userId string) string {
 		return AddKeyword(param, userId)
@@ -132,6 +133,10 @@ func (s SimpleChat) HandleMediaMsg(msg *message.MixMessage) string {
 }
 
 func SwitchUserBot(userId string, botType string) string {
+	// 如果是切换到AI模型，则保存上次使用的AI模型
+	if botType != config.Bot_Type_Keyword && botType != config.Bot_Type_Echo {
+		db.SetLastAIBot(userId, botType)
+	}
 	if _, err := config.CheckBotConfig(botType); err != nil {
 		return err.Error()
 	}
