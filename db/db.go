@@ -92,12 +92,19 @@ func (r *RedisChatDb) SetMsgList(botType string, userId string, msgList []Msg) {
 		return
 	}
 	msgTime := os.Getenv("MSG_TIME")
+	var expires time.Duration
 	//转换为数字
 	msgT, err := strconv.Atoi(msgTime)
-	if err != nil || msgT <= 0 {
+	if err != nil || msgT < 0 {
 		msgT = 30
+		expires = time.Minute * time.Duration(msgT)
+	} else if msgT == 0 {
+		expires = 0 // 设置为0，永不过期
+	} else {
+		expires = time.Minute * time.Duration(msgT)
 	}
-	r.client.Set(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId), res, time.Minute*time.Duration(msgT))
+
+	r.client.Set(context.Background(), fmt.Sprintf("%v:%v:%v", MSG_KEY, botType, userId), res, expires)
 }
 
 func GetChatDb() (ChatDb, error) {
@@ -151,11 +158,7 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	if RedisClient == nil {
 		return errors.New("redis client is nil")
 	}
-	// expires为0时永不过期，否则使用默认30分钟
-	if expires != 0 {
-		expires = time.Minute * 30
-	}
-
+	
 	err = RedisClient.Set(context.Background(), key, val, expires).Err()
 
 	return
