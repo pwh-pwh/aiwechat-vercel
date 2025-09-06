@@ -26,7 +26,8 @@ const (
 	MSG_KEY    = "msg"
 	MODEL_KEY  = "model"
 	TODO_KEY   = "todo"
-	KEYWORD_REPLY_KEY = "keyword" // 新增关键词回复的键
+	KEYWORD_REPLY_KEY = "keyword"
+	LAST_AI_BOT_KEY = "lastAIBot" // 新增用于存储上次使用的AI模型
 )
 
 type KeywordReply struct {
@@ -150,9 +151,7 @@ func SetValue(key string, val any, expires time.Duration) (err error) {
 	if RedisClient == nil {
 		return errors.New("redis client is nil")
 	}
-	if expires == 0 {
-		// No expiration
-	} else {
+	if expires != 0 {
 		expires = time.Minute * 30
 	}
 
@@ -274,7 +273,6 @@ func GetKeywordReplies() ([]KeywordReply, error) {
 		return nil, err
 	}
 
-	// Handle empty string case gracefully
 	if val == "" {
 		return []KeywordReply{}, nil
 	}
@@ -312,4 +310,16 @@ func RemoveKeyword(keyword string) error {
 	}
 
 	return SetValue(KEYWORD_REPLY_KEY, res, 0)
+}
+
+// SetLastAIBot adds or updates the last used AI bot type.
+func SetLastAIBot(userId, botType string) error {
+	return SetValue(fmt.Sprintf("%s:%s", LAST_AI_BOT_KEY, userId), botType, 0)
+}
+
+// GetLastAIBot retrieves the last used AI bot type.
+func GetLastAIBot(userId string) (string, error) {
+	return GetValue(fmt.Sprintf("%s:%s", LAST_AI_BOT_KEY, userId))
+}
+
 }
