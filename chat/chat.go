@@ -35,6 +35,9 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Command_Gemini: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Gemini)
 	},
+	config.Wx_Command_Claude: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Claude)
+	},
 
 	config.Wx_Command_Prompt:    SetPrompt,
 	config.Wx_Command_RmPrompt:  RmPrompt,
@@ -138,6 +141,8 @@ func SetPrompt(param, userId string) string {
 	case config.Bot_Type_Qwen:
 		db.SetPrompt(userId, botType, param)
 	case config.Bot_Type_Spark:
+		db.SetPrompt(userId, botType, param)
+	case config.Bot_Type_Claude:
 		db.SetPrompt(userId, botType, param)
 	default:
 		return fmt.Sprintf("%s 不支持设置system prompt", botType)
@@ -298,6 +303,13 @@ func GetChatBot(botType string) BaseChat {
 		return &QwenChat{
 			BaseChat:  SimpleChat{},
 			Config:    config,
+			maxTokens: maxTokens,
+		}
+	case config.Bot_Type_Claude:
+		return &ClaudeChat{
+			BaseChat:  SimpleChat{},
+			key:       config.GetClaudeKey(),
+			url:       config.GetClaudeUrl(),
 			maxTokens: maxTokens,
 		}
 	default:

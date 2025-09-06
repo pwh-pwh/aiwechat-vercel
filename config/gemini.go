@@ -1,20 +1,30 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 const (
 	Gemini_Welcome_Reply_Key = "geminiWelcomeReply"
 	Gemini_Key               = "geminiKey"
+	DefaultGeminiWelcome     = "我是gemini，开始聊天吧！"
 )
 
-func GetGeminiWelcomeReply() (r string) {
-	r = os.Getenv(Gemini_Welcome_Reply_Key)
-	if r == "" {
-		r = "我是gemini，开始聊天吧！"
+// GetGeminiWelcomeReply returns the welcome message for Gemini bot
+func GetGeminiWelcomeReply() string {
+	if reply := os.Getenv(Gemini_Welcome_Reply_Key); reply != "" {
+		return strings.TrimSpace(reply)
 	}
-	return
+	return DefaultGeminiWelcome
 }
 
+// GetGeminiKey returns the Gemini API key
 func GetGeminiKey() string {
-	return os.Getenv(Gemini_Key)
+	return strings.TrimSpace(os.Getenv(Gemini_Key))
+}
+
+// IsGeminiConfigured checks if Gemini is properly configured
+func IsGeminiConfigured() bool {
+	return GetGeminiKey() != ""
 }
