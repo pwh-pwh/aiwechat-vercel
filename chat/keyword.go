@@ -33,5 +33,10 @@ func (k *KeywordChat) Chat(userID string, msg string) string {
 }
 
 func (k *KeywordChat) HandleMediaMsg(msg *message.MixMessage) string {
+	if msg.MsgType == message.MsgTypeEvent {
+		// 将事件消息委托给通用的 SimpleChat 处理
+		simpleChat := SimpleChat{}
+		return simpleChat.HandleMediaMsg(msg)
+	}
 	return "关键词回复模式不支持处理多媒体消息"
 }
