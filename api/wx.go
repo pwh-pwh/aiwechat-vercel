@@ -48,6 +48,23 @@ func handleWxMessage(msg *message.MixMessage) (replyMsg string) {
 	msgType := msg.MsgType
 	msgContent := msg.Content
 	userId := string(msg.FromUserName)
+
+	// Check if user is authenticated (only if ADDME_PASSWORD is set)
+	if config.GetAddMePassword() != "" && !config.IsUserAuthenticated(userId) {
+		if msgType == message.MsgTypeText {
+			// Only allow /addme command for non-authenticated users
+			if msgContent == "/addme" || len(msgContent) > len("/addme") && msgContent[:len("/addme")] == "/addme" {
+				bot := chat.GetChatBot(config.GetUserBotType(userId))
+				replyMsg = bot.Chat(userId, msgContent)
+			} else {
+				replyMsg = "功能还在开发中"
+			}
+		} else {
+			replyMsg = "功能还在开发中"
+		}
+		return
+	}
+
 	bot := chat.GetChatBot(config.GetUserBotType(userId))
 	if msgType == message.MsgTypeText {
 		replyMsg = bot.Chat(userId, msgContent)

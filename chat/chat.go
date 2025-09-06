@@ -51,7 +51,8 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Todo_Add:  AddTodo,
 	config.Wx_Todo_Del:  DelTodo,
 
-	config.Wx_Coin: GetCoin,
+	config.Wx_Coin:          GetCoin,
+	config.Wx_Command_AddMe: AddMe,
 }
 
 func DoAction(userId, msg string) (r string, flag bool) {
@@ -213,6 +214,20 @@ func ClearMsg(param string, userId string) string {
 	botType := config.GetUserBotType(userId)
 	db.DeleteMsgList(botType, userId)
 	return fmt.Sprintf("%s 清除消息成功", botType)
+}
+
+func AddMe(param, userId string) string {
+	password := config.GetAddMePassword()
+	if password == "" {
+		return "功能还在开发中"
+	}
+
+	if param == password {
+		config.AuthenticateUser(userId)
+		return "认证成功！你现在可以使用AI功能了"
+	} else {
+		return "功能还在开发中"
+	}
 }
 
 // 加入超时控制
