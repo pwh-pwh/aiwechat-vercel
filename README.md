@@ -74,6 +74,12 @@ botType=** 机器人类型 目前支持(gpt,echo,spark,qwen,gemini)例如botType
 11. /getmodel:获取当前bot自定义的模型名
 12. /clear:清除对话列表
 
+13. /keyword：切换到关键词回复模式
+14. /ai：切换到AI对话模式
+15. /addkeyword 关键词:回复内容：添加关键词
+16. /delkeyword 关键词：删除关键词
+17. /listkeywords：查看关键词列表
+
 有其它想要支持的指令欢迎提issue或者pr (例如查看天气啥的)
 
 ## 后续计划添加指令

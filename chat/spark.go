@@ -111,7 +111,8 @@ func (chat *SparkChat) chat(userId string, message string) (res string) {
 			return
 		}
 		if rpn.Header.IsFailed() {
-			res = rpn.Header.ToString()
+			// res = rpn.Header.ToString()
+			res = rpn.Header.Message
 			return
 		}
 		//解析数据

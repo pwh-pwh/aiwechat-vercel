@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/pwh-pwh/aiwechat-vercel/db"
@@ -21,13 +22,15 @@ const (
 	Bot_Type_Spark  = "spark"
 	Bot_Type_Qwen   = "qwen"
 	Bot_Type_Gemini = "gemini"
+	Bot_Type_Keyword = "keyword"
+	AdminUsersKey = "ADMIN_USERS"
 	Bot_Type_Claude  = "claude"
 )
 
 var (
 	Cache sync.Map
 
-	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Claude}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Claude, Bot_Type_Keyword}
 )
 
 func IsSupportPrompt(botType string) bool {
@@ -48,6 +51,8 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 		_, err = GetQwenConfig()
 	case Bot_Type_Gemini:
 		err = CheckGeminiConfig()
+	case Bot_Type_Keyword:
+		err = nil // 本地实现，不需要外部配置
 	case Bot_Type_Claude:
 		err = CheckClaudeConfig()
 	}
@@ -62,6 +67,7 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 		Bot_Type_Spark:  true,
 		Bot_Type_Qwen:   true,
 		Bot_Type_Gemini: true,
+		Bot_Type_Keyword: true, // 增加对关键词模式的检查
 		Bot_Type_Claude: true,
 	}
 
@@ -145,4 +151,13 @@ func GetMaxTokens() int {
 
 func GetDefaultSystemPrompt() string {
 	return os.Getenv("defaultSystemPrompt")
+}
+
+// GetAdminUsers 从环境变量中获取管理员用户列表
+func GetAdminUsers() []string {
+	adminUsers := os.Getenv(AdminUsersKey)
+	if adminUsers == "" {
+		return nil
+	}
+	return strings.Split(adminUsers, ",")
 }

@@ -1,9 +1,9 @@
 module github.com/pwh-pwh/aiwechat-vercel
 
-go 1.23.0
+go 1.23
 
 require (
-	github.com/bytedance/sonic v1.11.2
+	github.com/bytedance/sonic v1.12.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/generative-ai-go v0.18.0
 	github.com/gorilla/websocket v1.5.1
