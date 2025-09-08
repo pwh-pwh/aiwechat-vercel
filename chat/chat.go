@@ -56,6 +56,7 @@ var actionMap = map[string]func(param, userId string) string{
 	},
 	config.Wx_Command_ListKeywords: func(param, userId string) string {
 		return ListKeywords(param, userId)
+	},
 	config.Wx_Command_Claude: func(param, userId string) string {
 		return SwitchUserBot(userId, config.Bot_Type_Claude)
 	},
