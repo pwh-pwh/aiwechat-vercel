@@ -56,6 +56,8 @@ var actionMap = map[string]func(param, userId string) string{
 	},
 	config.Wx_Command_ListKeywords: func(param, userId string) string {
 		return ListKeywords(param, userId)
+	config.Wx_Command_Claude: func(param, userId string) string {
+		return SwitchUserBot(userId, config.Bot_Type_Claude)
 	},
 
 	config.Wx_Command_Prompt:    SetPrompt,
@@ -70,7 +72,8 @@ var actionMap = map[string]func(param, userId string) string{
 	config.Wx_Todo_Add:  AddTodo,
 	config.Wx_Todo_Del:  DelTodo,
 
-	config.Wx_Coin: GetCoin,
+	config.Wx_Coin:          GetCoin,
+	config.Wx_Command_AddMe: AddMe,
 }
 
 // isAdmin 检查用户是否为管理员
@@ -118,13 +121,13 @@ func isAction(msg string) (string, string, bool) {
 }
 
 type BaseChat interface {
-	Chat(userID string, msg string) string
+	Chat(userId string, msg string) string
 	HandleMediaMsg(msg *message.MixMessage) string
 }
 type SimpleChat struct {
 }
 
-func (s SimpleChat) Chat(userID string, msg string) string {
+func (s SimpleChat) Chat(userId string, msg string) string {
 	panic("implement me")
 }
 
@@ -178,6 +181,8 @@ func SetPrompt(param, userId string) string {
 	case config.Bot_Type_Qwen:
 		db.SetPrompt(userId, botType, param)
 	case config.Bot_Type_Spark:
+		db.SetPrompt(userId, botType, param)
+	case config.Bot_Type_Claude:
 		db.SetPrompt(userId, botType, param)
 	default:
 		return fmt.Sprintf("%s 不支持设置system prompt", botType)
@@ -304,23 +309,37 @@ func ClearMsg(param string, userId string) string {
 	return fmt.Sprintf("%s 清除消息成功", botType)
 }
 
+func AddMe(param, userId string) string {
+	password := config.GetAddMePassword()
+	if password == "" {
+		return "功能还在开发中"
+	}
+
+	if param == password {
+		config.AuthenticateUser(userId)
+		return "认证成功！你现在可以使用AI功能了"
+	} else {
+		return "功能还在开发中"
+	}
+}
+
 // 加入超时控制
-func WithTimeChat(userID, msg string, f func(userID, msg string) string) string {
-	if _, ok := config.Cache.Load(userID + msg); ok {
-		rAny, _ := config.Cache.Load(userID + msg)
+func WithTimeChat(userId, msg string, f func(userId, msg string) string) string {
+	if _, ok := config.Cache.Load(userId + msg); ok {
+		rAny, _ := config.Cache.Load(userId + msg)
 		r := rAny.(string)
-		config.Cache.Delete(userID + msg)
+		config.Cache.Delete(userId + msg)
 		return r
 	}
 	resChan := make(chan string)
 	go func() {
-		resChan <- f(userID, msg)
+		resChan <- f(userId, msg)
 	}()
 	select {
 	case res := <-resChan:
 		return res
 	case <-time.After(5 * time.Second):
-		config.Cache.Store(userID+msg, <-resChan)
+		config.Cache.Store(userId+msg, <-resChan)
 		return ""
 	}
 }
@@ -333,7 +352,7 @@ func (e *ErrorChat) HandleMediaMsg(msg *message.MixMessage) string {
 	return e.errMsg
 }
 
-func (e *ErrorChat) Chat(userID string, msg string) string {
+func (e *ErrorChat) Chat(userId string, msg string) string {
 	return e.errMsg
 }
 
@@ -382,6 +401,13 @@ func GetChatBot(botType string) BaseChat {
 		return &QwenChat{
 			BaseChat:  SimpleChat{},
 			Config:    config,
+			maxTokens: maxTokens,
+		}
+	case config.Bot_Type_Claude:
+		return &ClaudeChat{
+			BaseChat:  SimpleChat{},
+			key:       config.GetClaudeKey(),
+			url:       config.GetClaudeUrl(),
 			maxTokens: maxTokens,
 		}
 	default:

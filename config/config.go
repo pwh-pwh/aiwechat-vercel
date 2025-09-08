@@ -24,16 +24,18 @@ const (
 	Bot_Type_Gemini = "gemini"
 	Bot_Type_Keyword = "keyword"
 	AdminUsersKey = "ADMIN_USERS"
+	Bot_Type_Claude  = "claude"
 )
 
 var (
 	Cache sync.Map
 
 	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Keyword}
+	Support_Bots = []string{Bot_Type_Gpt, Bot_Type_Spark, Bot_Type_Qwen, Bot_Type_Gemini, Bot_Type_Claude}
 )
 
 func IsSupportPrompt(botType string) bool {
-	return botType == Bot_Type_Gpt || botType == Bot_Type_Qwen || botType == Bot_Type_Spark
+	return botType == Bot_Type_Gpt || botType == Bot_Type_Qwen || botType == Bot_Type_Spark || botType == Bot_Type_Claude
 }
 
 func CheckBotConfig(botType string) (actualotType string, err error) {
@@ -52,6 +54,8 @@ func CheckBotConfig(botType string) (actualotType string, err error) {
 		err = CheckGeminiConfig()
 	case Bot_Type_Keyword:
 		err = nil // 本地实现，不需要外部配置
+	case Bot_Type_Claude:
+		err = CheckClaudeConfig()
 	}
 	return
 }
@@ -65,6 +69,7 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 		Bot_Type_Qwen:   true,
 		Bot_Type_Gemini: true,
 		Bot_Type_Keyword: true, // 增加对关键词模式的检查
+		Bot_Type_Claude: true,
 	}
 
 	err := CheckGptConfig()
@@ -82,6 +87,10 @@ func CheckAllBotConfig() (botType string, checkRes map[string]bool) {
 	err = CheckGeminiConfig()
 	if err != nil {
 		checkRes[Bot_Type_Gemini] = false
+	}
+	err = CheckClaudeConfig()
+	if err != nil {
+		checkRes[Bot_Type_Claude] = false
 	}
 	return
 }
@@ -105,6 +114,10 @@ func CheckGeminiConfig() error {
 		return errors.New("请配置geminiKey")
 	}
 	return nil
+}
+
+func CheckClaudeConfig() error {
+	return ValidateClaudeConfig()
 }
 
 func GetBotType() string {
