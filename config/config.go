@@ -25,6 +25,10 @@ const (
 	Bot_Type_Keyword = "keyword"
 	AdminUsersKey = "ADMIN_USERS"
 	Bot_Type_Claude  = "claude"
+
+	KeywordMatchModeKey = "KEYWORD_MATCH_MODE"
+	MatchModePartial = "partial"
+	MatchModeFull = "full"
 )
 
 var (
@@ -160,4 +164,13 @@ func GetAdminUsers() []string {
 		return nil
 	}
 	return strings.Split(adminUsers, ",")
+}
+
+// GetKeywordMatchMode returns the keyword matching mode, defaults to "partial".
+func GetKeywordMatchMode() string {
+	mode := strings.ToLower(os.Getenv(KeywordMatchModeKey))
+	if mode == MatchModeFull {
+		return MatchModeFull
+	}
+	return MatchModePartial
 }
