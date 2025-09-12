@@ -3,6 +3,7 @@ package chat
 import (
 	"strings"
 
+	"github.com/pwh-pwh/aiwechat-vercel/config"
 	"github.com/pwh-pwh/aiwechat-vercel/db"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
@@ -23,9 +24,17 @@ func (k *KeywordChat) Chat(userID string, msg string) string {
 		return "获取关键词回复失败"
 	}
 
+	matchMode := config.GetKeywordMatchMode()
+
 	for _, reply := range replies {
-		if strings.Contains(msg, reply.Keyword) {
-			return reply.Reply
+		if matchMode == config.MatchModeFull {
+			if msg == reply.Keyword {
+				return reply.Reply
+			}
+		} else {
+			if strings.Contains(msg, reply.Keyword) {
+				return reply.Reply
+			}
 		}
 	}
 
